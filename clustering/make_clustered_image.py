@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import os
 import shutil # 파일 복사
 import data_prepro_method
@@ -25,14 +26,17 @@ def clustering_and_classify(clusters_num, cat_name, image_dir):
 
         for label in range(clusters_num):
             # 클러스터링 된 이미지 저장 디렉터리를 생성
-            os.makedirs(f'/clustered_image/{cat_name}/c_num={clusters_num}/{label}', exist_ok= True)
+            os.makedirs(f'clustered_image/{cat_name}/c_num={clusters_num}/{label}', exist_ok= True)
 
             # csv에서 클래스 == label인 인덱스들 추출
             index_list = list(clusted_df[clusted_df['class'] == label].index)
+            index_list = np.array(index_list) + 1
+            index_list = list(index_list)
+            print(np.shape(index_list))
 
             # index를 기준으로 파일 복사해오기
             for index in index_list:
-                shutil.copy(f'{image_dir}/{cat_name}/' + f'{index}.jpg', f'/clustered_image/{cat_name}/c_num={clusters_num}/{label}/' + f'{index}.jpg')
+                shutil.copy(f'{image_dir}/{cat_name}/' + f'{index}.jpg', f'clustered_image/{cat_name}/c_num={clusters_num}/{label}/' + f'{index}.jpg')
 
 # 전역 변수
 name_list = ['긴소매',           # 0
@@ -52,10 +56,10 @@ img_dir_list = ['../dataset/상의',
 
 def main():
      # clusters_num 임의 설정
-     clusters_num_list = []
+     clusters_num_list = [4, 13]
      
      for clsts_num in clusters_num_list:
-          clustering_and_classify(clsts_num, name_list[카테고리숫자], img_dir_list[0])
+          clustering_and_classify(clsts_num, name_list[0], img_dir_list[0])
     
 
 if __name__ == '__main__':
