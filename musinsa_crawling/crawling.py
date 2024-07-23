@@ -60,7 +60,7 @@ def get_filtered_hrefs(url, save_path, max_count, item_path):
     # 브라우저 종료
     driver.quit()
 
-def extract_text_and_images(filtered_file, text_file, image_folder, product_num):
+def extract_text_and_images(filtered_file, text_file, image_folder, product_num):  #경로
     # Chrome WebDriver 설정
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
@@ -90,6 +90,7 @@ def extract_text_and_images(filtered_file, text_file, image_folder, product_num)
             if not url:
                 continue  # URL이 빈 문자열이면 건너뜀
             driver.get(url)
+            
             try:
                 # 세부 페이지에서 텍스트 추출
                 text_xpath = '//*[@id="root"]/div[@class="sc-29qvgg-0 iXHguF"]'
@@ -130,18 +131,32 @@ def extract_text_and_images(filtered_file, text_file, image_folder, product_num)
     driver.quit()
 
 def main():
-    url = 'https://www.musinsa.com/categories/item/001010?device=mw'  #  URL
+    urls_and_categories = [
+        ('https://www.musinsa.com/categories/item/001005?device=mw', '상의/맨투맨'),
+        ('https://www.musinsa.com/categories/item/001002?device=mw', '상의/셔츠_블라우스'),
+        ('https://www.musinsa.com/categories/item/001004?device=mw', '상의/후드티'),
+        ('https://www.musinsa.com/categories/item/001006?device=mw', '상의/니트_스웨터'),
+        ('https://www.musinsa.com/categories/item/001010?device=mw', '상의/긴소매'),
+        ('https://www.musinsa.com/categories/item/001001?device=mw', '상의/반소매'),
+        ('https://www.musinsa.com/categories/item/001011?device=mw', '상의/민소매')
+    ]
+
     save_path = './'  # 파일 저장 경로
     max_count = 500  # 가져올 필터링된 href 개수
-    item_path = '상의/긴소매'  # 경로 설정
-    
-    get_filtered_hrefs(url, save_path, max_count*2, item_path)
 
-    filtered_file = os.path.join(save_path, item_path, 'url.txt')  # 필터링된 URL 파일
-    text_file = os.path.join(save_path, item_path, 'text.txt')  # 텍스트 저장 파일
-    image_folder = os.path.join(save_path, item_path)  # 이미지 저장 폴더
+    for url, category in urls_and_categories:
+        # item_path 설정
+        item_path = category
+        
+        # 필터링된 hrefs 가져오기
+        get_filtered_hrefs(url, save_path, max_count*2, item_path)
 
-    extract_text_and_images(filtered_file, text_file, image_folder, max_count)
+        filtered_file = os.path.join(save_path, item_path, 'url.txt')  # 필터링된 URL 파일
+        text_file = os.path.join(save_path, item_path, 'text.txt')  # 텍스트 저장 파일
+        image_folder = os.path.join(save_path, item_path)  # 이미지 저장 폴더
+
+        # 텍스트와 이미지 추출
+        extract_text_and_images(filtered_file, text_file, image_folder, max_count)
 
 if __name__ == '__main__':
     main()
