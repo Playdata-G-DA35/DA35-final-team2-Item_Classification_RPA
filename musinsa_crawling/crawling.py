@@ -83,9 +83,9 @@ def extract_text_and_images(filtered_file, text_file, image_folder, product_num)
 
         # URL 처리
         
-        valid_index = 1  # 유효한 항목의 번호
+        valid_index = 0  # 유효한 항목의 번호
         for url in urls:
-            if valid_index > product_num:
+            if valid_index >= product_num:
                 break  # valid_index가 200을 초과하면 종료
             if not url:
                 continue  # URL이 빈 문자열이면 건너뜀
