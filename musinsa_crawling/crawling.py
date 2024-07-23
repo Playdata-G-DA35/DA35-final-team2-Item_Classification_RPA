@@ -60,7 +60,7 @@ def get_filtered_hrefs(url, save_path, max_count, item_path):
     # 브라우저 종료
     driver.quit()
 
-def extract_text_and_images(filtered_file, text_file, image_folder):
+def extract_text_and_images(filtered_file, text_file, image_folder, product_num):
     # Chrome WebDriver 설정
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
@@ -85,7 +85,7 @@ def extract_text_and_images(filtered_file, text_file, image_folder):
         
         valid_index = 1  # 유효한 항목의 번호
         for url in urls:
-            if valid_index > 200:
+            if valid_index > product_num:
                 break  # valid_index가 200을 초과하면 종료
             if not url:
                 continue  # URL이 빈 문자열이면 건너뜀
@@ -132,16 +132,16 @@ def extract_text_and_images(filtered_file, text_file, image_folder):
 def main():
     url = 'https://www.musinsa.com/categories/item/001011?device=mw'  #  URL
     save_path = './'  # 파일 저장 경로
-    max_count = 400  # 가져올 필터링된 href 개수
+    max_count = 500  # 가져올 필터링된 href 개수
     item_path = '상의/민소매'  # 경로 설정
     
-    get_filtered_hrefs(url, save_path, max_count, item_path)
+    get_filtered_hrefs(url, save_path, max_count*2, item_path)
 
     filtered_file = os.path.join(save_path, item_path, 'url.txt')  # 필터링된 URL 파일
     text_file = os.path.join(save_path, item_path, 'text.txt')  # 텍스트 저장 파일
     image_folder = os.path.join(save_path, item_path)  # 이미지 저장 폴더
 
-    extract_text_and_images(filtered_file, text_file, image_folder)
+    extract_text_and_images(filtered_file, text_file, image_folder, max_count)
 
 if __name__ == '__main__':
     main()
