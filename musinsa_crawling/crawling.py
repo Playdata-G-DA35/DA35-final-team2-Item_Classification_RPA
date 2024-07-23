@@ -130,10 +130,10 @@ def extract_text_and_images(filtered_file, text_file, image_folder, product_num)
     driver.quit()
 
 def main():
-    url = 'https://www.musinsa.com/categories/item/001011?device=mw'  #  URL
+    url = 'https://www.musinsa.com/categories/item/001010?device=mw'  #  URL
     save_path = './'  # 파일 저장 경로
     max_count = 500  # 가져올 필터링된 href 개수
-    item_path = '상의/민소매'  # 경로 설정
+    item_path = '상의/긴소매'  # 경로 설정
     
     get_filtered_hrefs(url, save_path, max_count*2, item_path)
 
