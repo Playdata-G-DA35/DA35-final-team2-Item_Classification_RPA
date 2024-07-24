@@ -59,5 +59,5 @@ def make_csv(data_dir, save_dir, name_list, label_num):
     for cat_name in name_list:
         data = load_data(data_dir, cat_name)
         tag_dict = make_labeldict(data)
-        df  =make_df(tag_dict, label_num, data)
-        df.to_csv(f'{save_dir}{cat_name}.csv')
+        df = make_df(tag_dict, label_num, data)
+        df.to_csv(f'{save_dir}/{cat_name}.csv')

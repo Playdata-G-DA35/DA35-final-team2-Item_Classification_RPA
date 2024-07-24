@@ -56,7 +56,7 @@ img_dir_list = ['../dataset/상의',
 
 def main():
      # clusters_num 임의 설정
-     clusters_num_list = [4, 13]
+     clusters_num_list = [6, 14]
      
      for clsts_num in clusters_num_list:
           clustering_and_classify(clsts_num, name_list[0], img_dir_list[0])
