@@ -22,7 +22,7 @@ def main():
     ]
 
     save_path = './'  # 파일 저장 경로
-    max_count = 500  # 가져올 필터링된 href 개수
+    max_count = 100  # 가져올 필터링된 href 개수
 
     for url, category in urls_and_categories:
         # item_path 설정

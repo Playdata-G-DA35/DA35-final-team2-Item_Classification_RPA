@@ -31,7 +31,7 @@ def get_filtered_hrefs(url, save_path, max_count, item_path):
     # 항목의 href 목록 가져오기
     hrefs = []
     try:
-        while len(hrefs) < max_count:
+        while len(hrefs) < int(max_count * 1.5):
             # 모든 a 태그의 href 속성 추출
             item_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//*[@id="root"]/main/div/section[3]/div[1]//a')))
             new_hrefs = [item.get_attribute('href') for item in item_elements if item.get_attribute('href')]
@@ -43,7 +43,7 @@ def get_filtered_hrefs(url, save_path, max_count, item_path):
             driver.execute_script("window.scrollBy(0, 500);")
             time.sleep(0.1)  # 페이지 로딩 대기
 
-            # 최대 개수 초과 시 종료
+            # 최대 개수의 1.5배 초과 시 종료
             if len(hrefs) >= int(max_count * 1.5):
                 break
     except Exception as e:
