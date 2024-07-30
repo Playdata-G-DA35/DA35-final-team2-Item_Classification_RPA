@@ -26,7 +26,7 @@
         {{ review_form.as_p }}
         <button type="submit" name="review_form">Add Review</button>
     </form>
-    <a href="{% url 'photo_list' %}">Back to list</a>
+    <a href="{% url 'home' %}">Back to list</a>
     <a href="{% url 'photo_delete' photo.pk %}">Delete this photo</a>
 </body>
 </html>

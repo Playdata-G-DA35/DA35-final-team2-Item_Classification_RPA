@@ -4,7 +4,7 @@ from .forms import PhotoForm, ReviewForm
 
 def photo_list(request):
     photos = Photo.objects.all()
-    return render(request, 'myapp/photo_list.html', {'photos': photos})
+    return render(request, 'myapp/home.html', {'photos': photos})
 
 def photo_detail(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
