@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>홈</title>
+</head>
+<body>
+    <h1>상품 목록</h1>
+    
+    <!-- 상품 등록하기 버튼 추가 -->
+    <a href="{% url 'product_upload' %}" style="display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">상품 등록하기</a>
+
+    <ul>
+        {% for product in products %}
+            <li>
+                <h2>{{ product.name }}</h2>
+                <p>가격: {{ product.price }}</p>
+                <p>설명: {{ product.description }}</p>
+
+                <h3>이미지</h3>
+                <div>
+                    {% for file in product.files.all %}
+                        <a href="{% url 'file_detail' file_id=file.product_file %}"> <!-- file_id를 file.product_file로 수정 -->
+                            <img src="{{ file.file.url }}" alt="{{ file.file_name }}" style="max-width: 300px; margin: 10px;" />
+                        </a>
+                    {% empty %}
+                        <p>이미지가 없습니다.</p>
+                    {% endfor %}
+                </div>
+            </li>
+        {% empty %}
+            <p>등록된 상품이 없습니다.</p>
+        {% endfor %}
+    </ul>
+</body>
+</html>
