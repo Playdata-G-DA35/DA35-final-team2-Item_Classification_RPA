@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>반전된 파일 상세보기</title>
+</head>
+<body>
+    <h1>반전된 파일 상세정보</h1>
+    <h2>파일 이름: {{ file.file_name }}</h2>
+    <p>파일 경로: <a href="{{ file.file.url }}" target="_blank">{{ file.file.url }}</a></p>
+    <p>등록 날짜: {{ file.file_reg_date }}</p>
+    <p>상품 ID: {{ file.product.product_id }}</p>
+    <p>상품 이름: {{ file.product.name }}</p>
+    <img src="{{ file.file.url }}" alt="{{ file.file_name }}" style="max-width: 600px;" />
+    <a href="{% url 'home' %}">홈으로 돌아가기</a>
+</body>
+</html>

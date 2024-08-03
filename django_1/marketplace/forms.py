@@ -1,5 +1,5 @@
 from django import forms
-from .models import Product, ProductFile
+from .models import Product, ProductFile, ProductX
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -9,4 +9,9 @@ class ProductForm(forms.ModelForm):
 class ProductFileForm(forms.ModelForm):
     class Meta:
         model = ProductFile
-        fields = ['file_name', 'file']
+        fields = [ 'file']  #'file_name',
+
+class ProductXForm(forms.ModelForm):
+    class Meta:
+        model = ProductX
+        fields = ['file']
