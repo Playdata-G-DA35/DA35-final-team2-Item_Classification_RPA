@@ -1,25 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>홈화면</title>
+    <title>{% block title %}My Site{% endblock %}</title>
     <style>
-        ul {
-            list-style-type: none;
-            padding: 0;
-            display: flex;
-            flex-wrap: wrap;
-        }
-        li {
-            margin: 10px;
-        }
-        li img {
-            display: block;
-            width: 300px;
-            height: 300px;
-            object-fit: cover;
-        }
-        li p {
-            text-align: center;
+        /* 공통 스타일 정의 */
+        body {
+            font-family: Arial, sans-serif;
         }
         .nav-bar {
             display: flex;
@@ -27,6 +13,19 @@
             align-items: center;
             padding: 10px;
             background-color: #f1f1f1;
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        nav li {
+            margin: 0 10px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #000;
         }
         .user-info {
             position: relative;
@@ -54,31 +53,38 @@
         .show {
             display: block;
         }
-        nav ul {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .form-field {
+            margin-bottom: 15px;
         }
-        nav li {
-            margin: 0 10px;
+        .form-field label {
+            display: block;
+            font-weight: bold;
         }
-        nav a {
-            text-decoration: none;
-            color: #000;
+        .form-field input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .errors {
+            color: red;
+            font-size: 0.9em;
+        }
+        .error-message {
+            color: red;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <header>
         <div class="nav-bar">
-            <h1>중고 의류 거래 플랫폼</h1>
+            <h1>{% block header %}중고 의류 거래 플랫폼{% endblock %}</h1>
             <nav>
                 <ul>
                     {% if user.is_authenticated %}
                         <li>
                             <div class="user-info">
-                                <span id="userDropdown">{{ profile.nickname }} ▼</span>
+                                <span id="userDropdown">{{ user.profile.nickname }} ▼</span>
                                 <div id="dropdownMenu" class="dropdown-content">
                                     <a href="{% url 'profile' %}">내 프로필</a>
                                     <a href="{% url 'logout' %}">로그아웃</a>
@@ -94,18 +100,7 @@
         </div>
     </header>
     <main>
-        <a href="{% url 'photo_upload' %}">Upload Photo</a>
-        <a href="{% url 'top_reviews' %}">Top Reviews</a>
-        <ul>
-            {% for photo in photos %}
-                <li>
-                    <a href="{% url 'photo_detail' photo.pk %}">
-                        <img src="{{ photo.image.url }}" alt="{{ photo.title }}">
-                    </a>
-                    <p>{{ photo.title }}</p>
-                </li>
-            {% endfor %}
-        </ul>
+        {% block content %}{% endblock %}
     </main>
     <script>
         document.getElementById('userDropdown').addEventListener('click', function() {

@@ -1,10 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from .models import Photo, Review
+from accounts.models import Profile
 from .forms import PhotoForm, ReviewForm
 
+@login_required
 def photo_list(request):
     photos = Photo.objects.all()
-    return render(request, 'myapp/home.html', {'photos': photos})
+    
+    # 로그인한 사용자의 프로필 정보를 가져옵니다
+    try:
+        profile = Profile.objects.get(user=request.user)
+    except Profile.DoesNotExist:
+        profile = None
+
+    return render(request, 'myapp/home.html', {'photos': photos, 'profile': profile})
 
 def photo_detail(request, pk):
     photo = get_object_or_404(Photo, pk=pk)
