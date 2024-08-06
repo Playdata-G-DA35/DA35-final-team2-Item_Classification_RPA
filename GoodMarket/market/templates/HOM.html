@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style>
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            outline: none;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px #999;
+        }
+
+        .button:hover {background-color: #3e8e41}
+
+        .button:active {
+            background-color: #3e8e41;
+            box-shadow: 0 2px #666;
+            transform: translateY(2px);
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-box input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #fff;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to GoodMarket</h1>
+
+    <div class="button-group">
+        <a href="{% url 'sell_product' %}" class="button">Sell Product</a>
+        <a href="{% url 'chat' %}" class="button">Chat</a>
+        <a href="{% url 'login' %}" class="button">Login/Sign Up</a>
+        <a href="{% url 'user_profile' %}" class="button">My Profile</a>
+    </div>
+
+    <div class="search-box">
+        <form method="get" action="{% url 'search_products' %}">
+            <input type="text" name="q" placeholder="Search for products...">
+            <input type="submit" value="Search">
+        </form>
+    </div>
+
+    <h2>Products</h2>
+    <ul>
+        {% for product in products %}
+            <li>{{ product.name }} - <a href="{% url 'product_detail' product.product_id %}">Detail</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Reversed Files</h2>
+    <ul>
+        {% for file in reversed_files %}
+            <li>{{ file.file_name }} - <a href="{% url 'product_x_detail' file.product_x_id %}">Detail</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
