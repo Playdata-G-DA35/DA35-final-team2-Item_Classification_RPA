@@ -1,3 +1,4 @@
 clustering/clustered_image
 dataset/
-dataset2.zip
+clustering/__pycache__
+musinsa_crawling/__pycache__
