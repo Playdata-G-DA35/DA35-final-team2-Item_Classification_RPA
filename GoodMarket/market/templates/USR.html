@@ -2,10 +2,54 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 프로필</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #5a5a5a;
+            font-family: 'TheJamsil5Bold', sans-serif;
+        }
+
+        .profile-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer {
+            background-color: #5a5a5a;
+            color: #f8f9fa;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>My Profile</h1>
-    <!-- Add your profile details here -->
+
+    <div class="profile-container">
+        <h2 class="text-center mb-4">내 프로필</h2>
+        <p><strong>아이디:</strong> {{ user.username }}</p>
+        <p><strong>이름:</strong> {{ user.first_name }}</p>
+        <p><strong>이메일:</strong> {{ user.email }}</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <span>© 2024 ㄱㅅㅂ</span>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
