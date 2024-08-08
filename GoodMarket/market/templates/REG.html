@@ -1,126 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        @font-face {
-            font-family: 'TheJamsil5Bold';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
-            font-weight: 100;
-            font-style: normal;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            color: #5a5a5a;
-            font-family: 'TheJamsil5Bold', sans-serif;
-        }
-
-        .register-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .register-btn {
-            background-color: #969696;
-            border: none;
-        }
-
-        .register-btn:hover {
-            background-color: #868686;
-        }
-
-        .link-btn {
-            color: #5a5a5a;
-        }
-
-        .link-btn:hover {
-            text-decoration: underline;
-        }
-
-        .footer {
-            background-color: #5a5a5a;
-            color: #f8f9fa;
-            text-align: center;
-            padding: 10px;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-
-        .error-message {
-            color: #dc3545;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="register-container">
-        <h2 class="text-center mb-4">회원가입</h2>
-        <form method="post" action="{% url 'register' %}">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username">아이디</label>
-                <input type="text" class="form-control {% if form.errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="아이디를 입력해주세요." required>
-                {% if form.errors.username %}
-                    <div class="error-message">{{ form.errors.username.0 }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="password">비밀번호</label>
-                <input type="password" class="form-control {% if form.errors.password %}is-invalid{% endif %}" id="password" name="password" placeholder="비밀번호를 입력해주세요." required>
-                {% if form.errors.password %}
-                    <div class="error-message">{{ form.errors.password.0 }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="password_confirm">비밀번호 확인</label>
-                <input type="password" class="form-control {% if form.errors.password_confirm %}is-invalid{% endif %}" id="password_confirm" name="password_confirm" placeholder="비밀번호를 다시 입력해주세요." required>
-                {% if form.errors.password_confirm %}
-                    <div class="error-message">{{ form.errors.password_confirm.0 }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="name">이름</label>
-                <input type="text" class="form-control {% if form.errors.name %}is-invalid{% endif %}" id="name" name="name" placeholder="이름을 입력해주세요." required>
-                {% if form.errors.name %}
-                    <div class="error-message">{{ form.errors.name.0 }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                <label for="email">이메일</label>
-                <input type="email" class="form-control {% if form.errors.email %}is-invalid{% endif %}" id="email" name="email" placeholder="이메일을 입력해주세요." required>
-                {% if form.errors.email %}
-                    <div class="error-message">{{ form.errors.email.0 }}</div>
-                {% endif %}
-            </div>
-            <button type="submit" class="btn register-btn btn-block">회원가입</button>
-            <div class="mt-3 text-center">
-                <a href="{% url 'login' %}" class="link-btn">로그인</a>
-            </div>
-        </form>
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="username">아이디</label>
+        <input type="text" class="form-control {% if form.errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="아이디를 입력해주세요." required>
+        {% if form.errors.username %}
+            <div class="error-message">{{ form.errors.username.0 }}</div>
+        {% endif %}
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <span>© 2024 ㄱㅅㅂ</span>
-    </footer>
-
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+    
+    <div class="form-group">
+        <label for="name">이름</label>
+        <input type="text" class="form-control {% if form.errors.first_name %}is-invalid{% endif %}" id="name" name="first_name" placeholder="이름을 입력해주세요." required>
+        {% if form.errors.first_name %}
+            <div class="error-message">{{ form.errors.first_name.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="email">이메일</label>
+        <input type="email" class="form-control {% if form.errors.email %}is-invalid{% endif %}" id="email" name="email" placeholder="이메일을 입력해주세요." required>
+        {% if form.errors.email %}
+            <div class="error-message">{{ form.errors.email.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="password">비밀번호</label>
+        <input type="password" class="form-control {% if form.errors.password %}is-invalid{% endif %}" id="password" name="password" placeholder="비밀번호를 입력해주세요." required>
+        {% if form.errors.password %}
+            <div class="error-message">{{ form.errors.password.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group">
+        <label for="password_confirm">비밀번호 확인</label>
+        <input type="password" class="form-control {% if form.errors.password_confirm %}is-invalid{% endif %}" id="password_confirm" name="password_confirm" placeholder="비밀번호를 다시 입력해주세요." required>
+        {% if form.errors.password_confirm %}
+            <div class="error-message">{{ form.errors.password_confirm.0 }}</div>
+        {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">회원가입</button>
+</form>
