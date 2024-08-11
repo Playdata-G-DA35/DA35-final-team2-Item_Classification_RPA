@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Website{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Pretendard-Regular';
+            src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #3c3c3c;
+            font-family: 'Pretendard-Regular', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar {
+            background-color: #ffffff;
+        }
+
+        .navbar-brand, .nav-link {
+            color: #3c3c3c !important;
+        }
+
+        .btn-custom, .btn-search {
+            background-color: #ffce69;
+            border: none;
+            color: #3c3c3c;
+        }
+
+        .btn-custom:hover, .btn-search:hover {
+            background-color: #ff9642;
+            color: #ffffff;
+        }
+
+        .form-control {
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+        }
+
+        .link-btn {
+            color: #3c3c3c;
+            text-decoration: none;
+        }
+
+        .link-btn:hover {
+            color: #ff9642;
+            text-decoration: none;
+        }
+    </style>    
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container"> 
+            <a class="navbar-brand" href="{% url 'home' %}">로고</a>
+            <div class="collapse navbar-collapse">
+                <form class="form-inline ml-auto search-form">
+                    <input class="form-control mr-sm-2" type="search" placeholder="상품명을 입력해주세요." aria-label="Search">
+                    <button class="btn btn-search my-2 my-sm-0" type="submit">
+                        <i class="fas fa-search"></i> 
+                    </button>
+                </form>                
+                <ul class="navbar-nav ml-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'sell_product' %}">판매하기</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'chat' %}">채팅하기</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ user.first_name }}
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="{% url 'user_profile' %}">내 프로필</a>
+                                <a class="dropdown-item" href="{% url 'logout' %}">로그아웃</a>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">로그인</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">회원가입</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div> 
+    </nav>
+
+    <!-- Main content placeholder -->
+    <div class="container mt-5">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

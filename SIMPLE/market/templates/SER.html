@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results for "{{ query }}"</h1>
+    <ul>
+        {% for product in results %}
+            <li>{{ product.name }} - <a href="{% url 'product_detail' product.product_id %}">Detail</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
