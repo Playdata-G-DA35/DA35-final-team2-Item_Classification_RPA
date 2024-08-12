@@ -1,144 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        @font-face {
-            font-family: 'GmarketSansMedium';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'TheJamsil5Bold';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/TheJamsil5Bold.woff2') format('woff2');
-            font-weight: 700;
-            font-style: normal;
-        }
-        body {
-            background-color: #f8f9fa;
-            color: #5a5a5a;
-            font-family: 'GmarketSansMedium', sans-serif;
-        }
-        .navbar, .footer {
-            background-color: #5a5a5a;
-        }
-        .navbar-brand, .nav-link, .footer {
-            color: #f8f9fa !important;
-        }
-        .btn-custom {
-            background-color: #969696;
-            border: none;
-        }
-        .btn-custom:hover {
-            background-color: #969696;
-        }
-        .banner {
-            background-color: #c8c8c8;
-            height: 200px;
-        }
-        .product-card {
-            border: 1px solid #dee2e6;
-            background-color: #fff;
-        }
-        .dropdown-toggle::after {
-            display: none; 
-        }
-        .dropdown-toggle {
-            position: relative;
-            padding-right: 25px;
-        }
-        .dropdown-toggle::before {
-            content: '\25BC'; 
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 0.75em;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="#">로고</a>
-        <div class="collapse navbar-collapse">
-            <form class="form-inline ml-auto">
-                <input class="form-control mr-sm-2" type="search" placeholder="상품명을 입력해주세요." aria-label="Search">
-                <button class="btn btn-outline-light my-2 my-sm-0" type="submit">검색</button>
-            </form>
-            <ul class="navbar-nav ml-2">
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'sell_product' %}">판매하기</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'chat' %}">채팅하기</a>
-                </li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{ user.first_name }}
+{% load static %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+<div class="banner">
+    <h1 class="display-4">배너</h1>
+</div>
+
+<div class="mt-5">
+    <h2>Products</h2>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card">
+                    {% if product.first_file %}
+                        <a href="{% url 'product_detail' product.product_id %}">
+                            <img src="{{ product.first_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
                         </a>
-                        <div class="dropdown-menu" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="{% url 'user_profile' %}">내 프로필</a>
-                            <a class="dropdown-item" href="{% url 'logout' %}">로그아웃</a>
-                        </div>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">로그인</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'register' %}">회원가입</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Banner -->
-    <div class="banner d-flex justify-content-center align-items-center">
-        <h1 class="display-4">배너배너배너배너배너배너배너</h1>
-    </div>
-
-    <!-- Main content -->
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-12">
-                <h2>Products</h2>
-                <div class="row">
-                    {% for product in products %}
-                        <div class="col-md-3 mb-4">
-                            <div class="card product-card">
-                                <img src="path_to_product_image" class="card-img-top" alt="...">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ product.name }}</h5>
-                                    <p class="card-text">{{ product.description }}</p>
-                                    <a href="{% url 'product_detail' product.product_id %}" class="btn btn-custom">상세보기</a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+                    {% else %}
+                        <a href="{% url 'product_detail' product.product_id %}">
+                            <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
+                        </a>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.price }}</p>
+                        <!-- 상품 삭제 링크 추가 -->
+                        <a href="{% url 'product_delete' product.product_id %}" class="btn btn-danger">Delete</a>
+                    </div>
                 </div>
             </div>
-        </div>
+        {% endfor %}
     </div>
-
-    <!-- Footer -->
-    <footer class="footer text-center py-3">
-        <div class="container">
-            <span>© 2024 ㄱㅅㅂ</span>
-        </div>
-    </footer>
-
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

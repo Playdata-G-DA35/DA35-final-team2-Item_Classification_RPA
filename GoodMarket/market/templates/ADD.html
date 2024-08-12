@@ -1,11 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Sell Product</title>
+    <title>Add Product</title>
 </head>
 <body>
-    <h1>Sell Product</h1>
-    <!-- Add your form here -->
+    <h2>Add Product</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ product_form.as_p }}
+        <label for="id_file">Upload Files:</label>
+        <input type="file" name="file" multiple>
+        <button type="submit">Add Product</button>
+    </form>
 </body>
 </html>

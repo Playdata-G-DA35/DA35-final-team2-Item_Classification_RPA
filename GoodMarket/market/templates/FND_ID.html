@@ -1,11 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ID</title>
-</head>
-<body>
-    <h1>ID</h1>
-    <!-- Add your profile details here -->
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}
+아이디 찾기
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="find-id-container">
+        <h2 class="text-center mb-4">아이디 찾기</h2>
+        <form method="post" action="{% url 'find_id' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="first_name">이름</label>
+                <input type="text" class="form-control {% if form.errors.first_name %}is-invalid{% endif %}" id="first_name" name="first_name" placeholder="아이디를 입력해주세요" required>
+                {% if form.errors.first_name %}
+                    <div class="invalid-feedback">{{ form.errors.first_name.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <input type="email" class="form-control {% if form.errors.email %}is-invalid{% endif %}" id="email" name="email" placeholder="이메일을 입력해주세요" required>
+                {% if form.errors.email %}
+                    <div class="invalid-feedback">{{ form.errors.email.0 }}</div>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn btn-custom btn-block">확인</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,44 +1,55 @@
-<form method="post">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="username">아이디</label>
-        <input type="text" class="form-control {% if form.errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="아이디를 입력해주세요." required>
-        {% if form.errors.username %}
-            <div class="error-message">{{ form.errors.username.0 }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="form-group">
-        <label for="name">이름</label>
-        <input type="text" class="form-control {% if form.errors.first_name %}is-invalid{% endif %}" id="name" name="first_name" placeholder="이름을 입력해주세요." required>
-        {% if form.errors.first_name %}
-            <div class="error-message">{{ form.errors.first_name.0 }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="form-group">
-        <label for="email">이메일</label>
-        <input type="email" class="form-control {% if form.errors.email %}is-invalid{% endif %}" id="email" name="email" placeholder="이메일을 입력해주세요." required>
-        {% if form.errors.email %}
-            <div class="error-message">{{ form.errors.email.0 }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="form-group">
-        <label for="password">비밀번호</label>
-        <input type="password" class="form-control {% if form.errors.password %}is-invalid{% endif %}" id="password" name="password" placeholder="비밀번호를 입력해주세요." required>
-        {% if form.errors.password %}
-            <div class="error-message">{{ form.errors.password.0 }}</div>
-        {% endif %}
-    </div>
-    
-    <div class="form-group">
-        <label for="password_confirm">비밀번호 확인</label>
-        <input type="password" class="form-control {% if form.errors.password_confirm %}is-invalid{% endif %}" id="password_confirm" name="password_confirm" placeholder="비밀번호를 다시 입력해주세요." required>
-        {% if form.errors.password_confirm %}
-            <div class="error-message">{{ form.errors.password_confirm.0 }}</div>
-        {% endif %}
-    </div>
-    
-    <button type="submit" class="btn btn-primary">회원가입</button>
-</form>
+{% extends 'base.html' %}
+
+{% block title %}
+회원가입
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2 class="text-center mb-4">회원가입</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">아이디</label>
+            <input type="text" class="form-control {% if form.errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="아이디를 입력해주세요." required>
+            {% if form.errors.username %}
+                <div class="error-message">{{ form.errors.username.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" class="form-control {% if form.errors.first_name %}is-invalid{% endif %}" id="name" name="first_name" placeholder="이름을 입력해주세요." required>
+            {% if form.errors.first_name %}
+                <div class="error-message">{{ form.errors.first_name.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" class="form-control {% if form.errors.email %}is-invalid{% endif %}" id="email" name="email" placeholder="이메일을 입력해주세요." required>
+            {% if form.errors.email %}
+                <div class="error-message">{{ form.errors.email.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" class="form-control {% if form.errors.password %}is-invalid{% endif %}" id="password" name="password" placeholder="비밀번호를 입력해주세요." required>
+            {% if form.errors.password %}
+                <div class="error-message">{{ form.errors.password.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="password_confirm">비밀번호 확인</label>
+            <input type="password" class="form-control {% if form.errors.password_confirm %}is-invalid{% endif %}" id="password_confirm" name="password_confirm" placeholder="비밀번호를 다시 입력해주세요." required>
+            {% if form.errors.password_confirm %}
+                <div class="error-message">{{ form.errors.password_confirm.0 }}</div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-custom btn-block">회원가입</button>
+    </form>
+</div>
+{% endblock %}
