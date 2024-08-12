@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+내 프로필
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h2 class="text-center mb-4">내 프로필</h2>
+    <p><strong>아이디:</strong> {{ user.username }}</p>
+    <p><strong>이름:</strong> {{ user.first_name }}</p>
+    <p><strong>이메일:</strong> {{ user.email }}</p>
+</div>
+{% endblock %}
