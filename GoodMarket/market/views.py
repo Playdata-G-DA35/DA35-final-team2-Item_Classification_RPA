@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Product, ProductX, ProductFile
 from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm
 from django.urls import path
-
+from django.contrib.auth.decorators import login_required
 
 
 def file_detail(request, file_id):
@@ -165,3 +165,10 @@ def product_detail(request, product_id):
     # 특정 상품과 관련된 첫 번째 파일을 가져옵니다.
     product_file = product.files.first()  # 'files'는 ProductFile 모델의 related_name
     return render(request, 'product_detail.html', {'product': product, 'product_file': product_file})
+
+@login_required
+def user_profile(request):
+    user = request.user
+    products = Product.objects.filter(user=user)
+    product_files = ProductFile.objects.filter(product__in=products)
+    return render(request, 'USR.html', {'user': user, 'products': products, 'product_files': product_files})
