@@ -2,3 +2,6 @@ clustering/clustered_image
 dataset/
 clustering/__pycache__
 musinsa_crawling/__pycache__
+Obj_detection_model/__pycache__
+Obj_detection_model/yolov5/__pycache__
+Obj_detection_model/yolov5/runs
