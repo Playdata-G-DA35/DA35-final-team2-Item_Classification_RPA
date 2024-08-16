@@ -32,6 +32,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">{{ product.price }}</p>
+                        <p class="card-text">{{ product.product_id }}</p>
                         <!-- 상품 삭제 버튼 추가 -->
                         {% if product.user == user %}
                             <a href="{% url 'product_delete' product.product_id %}" class="btn btn-danger" onclick="return confirm('정말로 삭제하시겠습니까?');">Delete</a>

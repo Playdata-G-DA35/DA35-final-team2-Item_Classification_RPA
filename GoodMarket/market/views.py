@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, ProductX, ProductFile
+from .models import Product, ProductX, ProductFile, Chat
 from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm
 from django.urls import path
 from django.contrib.auth.decorators import login_required
-
+from django.utils import timezone
 
 def file_detail(request, file_id):
     file = get_object_or_404(ProductFile, product_file=file_id)
@@ -129,6 +129,7 @@ def search_products(request):
     results = Product.objects.filter(name__icontains=query) if query else []
     return render(request, 'SER.html', {'results': results, 'query': query})
 
+@login_required
 def add_product(request):
     if request.method == 'POST':
         product_form = ProductForm(request.POST, request.FILES)
@@ -172,3 +173,48 @@ def user_profile(request):
     products = Product.objects.filter(user=user)
     product_files = ProductFile.objects.filter(product__in=products)
     return render(request, 'USR.html', {'user': user, 'products': products, 'product_files': product_files})
+
+@login_required
+def chat(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    
+    # Prevent the user from accessing the chat if they own the product
+    if product.user == request.user:
+        return redirect('home')
+
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        if message:
+            Chat.objects.create(
+                product=product,
+                sender=request.user,
+                receiver=product.user,
+                message=message,
+                timestamp=timezone.now()
+            )
+            return redirect('chat', product_id=product_id)
+
+    chats = Chat.objects.filter(product=product).order_by('timestamp')
+    return render(request, 'CHT.html', {'product': product, 'chats': chats})
+
+@login_required
+def chat_view(request):
+    user = request.user
+    products = Product.objects.filter(user=user)
+
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        message = request.POST.get('message')
+
+        if product_id and message:
+            product = get_object_or_404(Product, pk=product_id, user=user)
+            Chat.objects.create(
+                product=product,
+                sender=user,
+                receiver=product.chats.exclude(sender=user).first().sender,  # 구매자
+                message=message,
+                timestamp=timezone.now()
+            )
+            return redirect('chat_view')  # 메시지를 보낸 후 페이지를 새로 고침
+
+    return render(request, 'chat_view.html', {'products': products})

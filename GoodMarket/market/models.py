@@ -1,6 +1,7 @@
-from django.contrib.auth.models import User  # Django 기본 User 모델 가져오기
+# market/models.py
+
+from django.contrib.auth.models import User
 from django.db import models
-from django.utils import timezone
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
@@ -12,7 +13,7 @@ class Category(models.Model):
 class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Django 기본 User 모델 참조
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
@@ -42,9 +43,12 @@ class ProductX(models.Model):
         return self.file_name
 
 class Chat(models.Model):
-    room_name = models.CharField(max_length=255)
+    chat_id = models.AutoField(primary_key=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='chats')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_chats')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_chats')
     message = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'[{self.timestamp}] {self.room_name}: {self.message}'
+        return f'Chat between {self.sender.username} and {self.receiver.username} about {self.product.name}'

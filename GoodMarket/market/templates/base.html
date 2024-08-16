@@ -1,3 +1,4 @@
+<!-- base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,8 +83,9 @@
         <div class="container"> 
             <a class="navbar-brand" href="{% url 'home' %}">로고</a>
             <div class="collapse navbar-collapse">
-                <form class="form-inline ml-auto search-form">
-                    <input class="form-control mr-sm-2" type="search" placeholder="상품명을 입력해주세요." aria-label="Search">
+                <!-- Search form linked to the search view -->
+                <form class="form-inline ml-auto search-form" method="GET" action="{% url 'search_products' %}">
+                    <input class="form-control mr-sm-2" type="search" name="q" placeholder="상품명을 입력해주세요." aria-label="Search" value="{{ request.GET.q|default:'' }}">
                     <button class="btn btn-search my-2 my-sm-0" type="submit">
                         <i class="fas fa-search"></i> 
                     </button>
@@ -92,9 +94,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'add_product' %}">판매하기</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'chat' %}">채팅하기</a>
-                    </li>
+                    
+                    <!-- Chat link for all received chats -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'chat_view' %}">채팅하기</a>
+                        </li>
+                    {% endif %}
+                    
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
