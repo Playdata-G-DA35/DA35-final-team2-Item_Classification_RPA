@@ -20,10 +20,6 @@ def test_by_musinsa(source_path, weight_path, save_path, save_name, conf):
     """
     # 저장 디렉토리 생성
     os.makedirs(f'{save_path}/{save_name}', exist_ok= True)
-    #os.makedirs(f'{save_path}/product', exist_ok= True)
-
-    #person_save_path = f'{save_path}/person'
-    #product_save_path = f'{save_path}/product'
 
     large_category = source_path.split('/')[-2] # ex) top, ...
     cat_name = source_path.split('/')[-1] # ex) hood, ...
