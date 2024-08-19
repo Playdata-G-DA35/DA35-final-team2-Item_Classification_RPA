@@ -56,7 +56,6 @@ def register(request):
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f'{username}님, 회원가입이 완료되었습니다.')
             return redirect('register_done')  # 회원가입 후 로그인 페이지로 리다이렉션
     else:
         form = RegisterForm()
