@@ -1,17 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 완료</title>
-    <script>
-        window.onload = function() {
-            alert("회원가입이 완료되었습니다.");
-            window.location.href = "{% url 'home' %}"; 
-        };
-    </script>
-</head>
-<body>
-    
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}
+회원가입 완료
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="registration-complete">
+        <h2 class="text-center mb-4">회원가입이 완료되었습니다.</h2>
+        <div class="text-center">
+            <a href="{% url 'login' %}" class="btn btn-custom btn-block">로그인</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
