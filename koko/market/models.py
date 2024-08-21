@@ -30,17 +30,6 @@ class ProductFile(models.Model):
     file = models.FileField(upload_to='product_files/')
     file_reg_date = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        # 이미지 크기 조정
-        if self.file and self.file.name.lower().endswith(('png', 'jpg', 'jpeg')):
-            img = Image.open(self.file.path)
-            if img.height > 640 or img.width > 640:
-                output_size = (640, 640)
-                img.thumbnail(output_size)
-                img.save(self.file.path)
-
     def __str__(self):
         return self.file_name
 
