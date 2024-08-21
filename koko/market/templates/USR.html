@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+내 프로필
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h2 class="text-center mb-4">내 프로필</h2>
+    <p><strong>번호:</strong> {{ user.id }}</p>
+    <p><strong>아이디:</strong> {{ user.username }}</p>
+    <p><strong>이름:</strong> {{ user.first_name }}</p>
+    <p><strong>이메일:</strong> {{ user.email }}</p>
+
+    <h3 class="mt-4">내가 올린 상품들</h3>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card">
+                    <!-- 상품에 첫 번째 파일이 있는 경우 그 파일의 URL을 표시합니다 -->
+                    {% if product.files.all %}
+                        <a href="{% url 'product_detail' product.product_id %}">
+                            <img src="{{ product.files.first.file.url }}" class="img-fluid" alt="{{ product.name }}">
+                        </a>
+                    {% else %}
+                        <a href="{% url 'product_detail' product.product_id %}">
+                            <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
+                        </a>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.price }}</p>
+                        <p class="card-text">{{ product.product_id }}</p>
+                        <!-- 상품 삭제 버튼 추가 -->
+                        {% if product.user == user %}
+                            <a href="{% url 'product_delete' product.product_id %}" class="btn btn-danger" onclick="return confirm('정말로 삭제하시겠습니까?');">Delete</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>등록한 상품이 없습니다.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
