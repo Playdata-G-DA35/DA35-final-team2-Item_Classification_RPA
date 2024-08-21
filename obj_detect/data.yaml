@@ -1,7 +1,0 @@
-names:
-  0: Bottom
-  1: One piece
-  2: Top
-path: ../../dataset/yolo_dataset
-train: train.txt
-val: val.txt
