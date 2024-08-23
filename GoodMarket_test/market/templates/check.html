@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check YOLO Processed Images</title>
+    <style>
+        .image-container {
+            margin-bottom: 20px;
+            display: inline-block;
+            position: relative;
+        }
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+        .image-info, .image-path {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .image-path {
+            color: #555;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>판매하고자 하는 사진을 골라주세요</h1>
+    
+    <div id="images-container">
+        {% if images %}
+            {% for image in images %}
+                <div class="image-container">
+                    <!-- Clickable link to enlarge the image -->
+                    <a href="#" class="image-link" data-image-id="{{ forloop.counter }}" data-image-description="{{ image.description }}" data-image-path="{{ image.image.url }}">
+                        <img src="{{ image.image.url }}" class="img-fluid" alt="YOLO Processed Image">
+                    </a>
+                    <div class="image-info" id="info-{{ forloop.counter }}">
+                        <p>{{ image.description }}</p>
+                    </div>
+                    <div class="image-path" id="path-{{ forloop.counter }}">
+                        <p>{{ image.image.url }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No images found.</p>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'add_product' %}">Back to Add Product</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageLinks = document.querySelectorAll('.image-link');
+            const imagesContainer = document.getElementById('images-container');
+
+            imageLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();  // Prevent default link behavior
+                    
+                    // Get the clicked image ID
+                    const imageId = this.getAttribute('data-image-id');
+                    
+                    // Hide all images and their info
+                    imageLinks.forEach(link => {
+                        link.parentElement.classList.add('hidden');
+                    });
+
+                    // Show the clicked image and its info
+                    const imageContainer = document.querySelector(`.image-container:nth-of-type(${imageId})`);
+                    imageContainer.classList.remove('hidden');
+                    
+                    // Hide all image info and paths
+                    document.querySelectorAll('.image-info, .image-path').forEach(info => {
+                        info.style.display = 'none';
+                    });
+
+                    // Show the image info and path of the clicked image
+                    document.getElementById(`info-${imageId}`).style.display = 'block';
+                    document.getElementById(`path-${imageId}`).style.display = 'block';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
