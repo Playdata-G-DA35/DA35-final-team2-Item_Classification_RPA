@@ -1,10 +1,10 @@
-#forms.py
+# forms.py
 from typing import Any
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Product, ProductFile
+from .models import Product, ProductFile, UserProfile
 
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="비밀번호")
@@ -96,7 +96,7 @@ class PasswordResetConfirmForm(forms.Form):
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product  # 실제 모델 이름으로 변경하세요.
+        model = Product  
         fields = ['name', 'category', 'price', 'description']
         widgets = {
             'name': forms.TextInput(attrs={
@@ -110,6 +110,7 @@ class ProductForm(forms.ModelForm):
             'price': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': '숫자만 입력해주세요.',
+                'step': 'any'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -121,4 +122,9 @@ class ProductForm(forms.ModelForm):
 class ProductFileForm(forms.ModelForm):
     class Meta:
         model = ProductFile
-        fields = ['file'] 
+        fields = ['file']
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['profile_image']

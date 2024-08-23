@@ -75,21 +75,16 @@
             top: 100%;
             left: 100;
             background-color: #ffffff;
-            border: 1px solid #00c5bf;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 200px;
+            width: 200px; /* 고정된 너비 설정 */
             z-index: 1000;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            height: auto; /* 높이를 자동으로 설정 */
         }
 
         .category-menu .category-item {
-            border-bottom: 1px solid #00c5bf;
             margin: 0;
             padding: 0;
-        }
-
-        .category-menu .category-item:last-child {
-            border-bottom: none;
         }
 
         .category-menu .category-item a {
@@ -101,7 +96,8 @@
         }
 
         .category-menu .category-item a:hover {
-            background-color: #f8f9fa;
+            background-color: #00c5bf; /* hover 색상 변경 */
+            color: #ffffff; /* hover 시 텍스트 색상 변경 (선택 사항) */
         }
 
         .category-menu .subcategory-menu {
@@ -110,9 +106,9 @@
             left: 100%;
             top: 0;
             background-color: #ffffff;
-            border: 1px solid #00c5bf;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 200px;
+            min-height: 100%; /* 최소 높이를 상위 메뉴와 같게 설정 */
             z-index: 1000;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
@@ -123,14 +119,6 @@
             visibility: visible;
         }
 
-        .category-menu .subcategory-menu .subcategory-item {
-            border-bottom: 1px solid #00c5bf;
-        }
-
-        .category-menu .subcategory-menu .subcategory-item:last-child {
-            border-bottom: none;
-        }
-
         .category-menu .subcategory-menu .subcategory-item a {
             display: block;
             padding: 10px;
@@ -139,7 +127,8 @@
         }
 
         .category-menu .subcategory-menu .subcategory-item a:hover {
-            background-color: #f8f9fa;
+            background-color: #00c5bf; 
+            color: #ffffff; 
         }
 
         .nav-link {
@@ -249,31 +238,31 @@
                 <!-- 카테고리 메뉴 -->
                 <div class="category-menu">
                     <div class="category-item">
-                        <a href="#">상의</a>
+                        <a href="{% url 'category_products' '상의' %}">상의</a>
                         <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="#">긴소매</a></div>
-                            <div class="subcategory-item"><a href="#">셔츠/블라우스</a></div>
-                            <div class="subcategory-item"><a href="#">반소매</a></div>
-                            <div class="subcategory-item"><a href="#">민소매</a></div>
-                            <div class="subcategory-item"><a href="#">니트/스웨터</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '긴소매' %}">긴소매</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '셔츠_블라우스' %}">셔츠/블라우스</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '반소매' %}">반소매</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '민소매' %}">민소매</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '니트_스웨터' %}">니트/스웨터</a></div>
                         </div>
                     </div>
                     <div class="category-item">
-                        <a href="#">하의</a>
+                        <a href="{% url 'category_products' '하의' %}">하의</a>
                         <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="#">긴바지</a></div>
-                            <div class="subcategory-item"><a href="#">반바지</a></div>
-                            <div class="subcategory-item"><a href="#">스커트</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '긴바지' %}">긴바지</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '반바지' %}">반바지</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '스커트' %}">스커트</a></div>
                         </div>
                     </div>
                     <div class="category-item">
-                        <a href="#">기타</a>
+                        <a href="{% url 'category_products' '기타' %}">기타</a>
                         <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="#">원피스</a></div>
-                            <div class="subcategory-item"><a href="#">점프슈트/멜빵</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '원피스' %}">원피스</a></div>
+                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '점프슈트_멜빵' %}">점프슈트/멜빵</a></div>
                         </div>
                     </div>
-                </div>
+                </div>              
             </a>
             <div class="collapse navbar-collapse">
                 <!-- Search form linked to the search view -->
@@ -318,6 +307,7 @@
                     {% endif %}
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
+                            <span class="nav-separator"></span>
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{ user.first_name }}
                             </a>
@@ -383,6 +373,7 @@
             categoryMenu.addEventListener('mouseout', (event) => {
                 if (!menuWrapper.contains(event.relatedTarget)) hideMenu();
             });
+            
         });
     </script>
 </body>

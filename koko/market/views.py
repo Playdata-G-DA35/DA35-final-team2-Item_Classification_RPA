@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, ProductX, ProductFile, Chat, Category
-from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm
+from .models import Product, ProductX, ProductFile, Chat, Category, UserProfile
+from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm, UserProfileForm
 from django.urls import path
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -28,6 +28,49 @@ def delete_product(request, product_id):
 def sell_product(request):
     # Implement this view
     return render(request, 'ADD.html')
+
+def category_products(request, category_name, sort_by=''):
+    # 상위 카테고리 가져오기
+    category = get_object_or_404(Category, name=category_name)
+    
+    # 상위 카테고리의 하위 카테고리들 가져오기
+    subcategories = Category.objects.filter(parent=category)
+    
+    # 상위 카테고리의 모든 제품들 가져오기
+    products = Product.objects.filter(category__in=subcategories)
+
+    if sort_by == 'price_asc':
+        products = products.order_by('price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')
+    
+    return render(request, 'category_products.html', {
+        'category': category,
+        'subcategories': subcategories,
+        'products': products,
+    })
+
+
+def subcategory_products(request, category_name, subcategory_name, sort_by=''):
+    # 상위 카테고리 가져오기
+    category = get_object_or_404(Category, name=category_name)
+    
+    # 하위 카테고리 가져오기
+    subcategory = get_object_or_404(Category, parent=category, name=subcategory_name)
+    
+    # 하위 카테고리에 속한 제품들 가져오기
+    products = Product.objects.filter(category=subcategory)
+
+    if sort_by == 'price_asc':
+        products = products.order_by('price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')
+    
+    return render(request, 'subcategory_products.html', {
+        'category': category, 
+        'subcategory': subcategory,
+        'products': products,
+    })
 
 def chat(request):
     # Implement this view
@@ -220,3 +263,18 @@ def chat_view(request):
             return redirect('chat_view')  # 메시지를 보낸 후 페이지를 새로 고침
 
     return render(request, 'chat_view.html', {'products': products})
+
+@login_required
+def profile_update(request):
+    user = request.user
+    profile = get_object_or_404(UserProfile, user=user)
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('user_profile')  # 저장 후 리디렉션
+    else:
+        form = UserProfileForm(instance=profile)
+
+    return render(request, 'USR.html', {'user': user, 'form': form})

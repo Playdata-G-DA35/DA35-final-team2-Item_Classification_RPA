@@ -1,14 +1,18 @@
-# market/models.py
-
+# models.py
 from django.contrib.auth.models import User
 from django.db import models
-from PIL import Image
 
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategories')
 
     def __str__(self):
+        return self.name
+
+    def get_full_category_name(self):
+        if self.parent:
+            return f'{self.parent.get_full_category_name()} > {self.name}'
         return self.name
 
 class Product(models.Model):
@@ -53,3 +57,10 @@ class Chat(models.Model):
 
     def __str__(self):
         return f'Chat between {self.sender.username} and {self.receiver.username} about {self.product.name}'
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
+    
+    def __str__(self):
+        return self.user.username

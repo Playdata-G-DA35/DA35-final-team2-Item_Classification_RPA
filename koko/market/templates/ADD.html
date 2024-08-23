@@ -131,19 +131,27 @@
             Array.from(files).forEach((file) => {
                 const imagePreview = document.createElement('div');
                 imagePreview.className = 'image-preview';
-
+    
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(file);
                 imagePreview.appendChild(img);
-
+    
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.innerHTML = '&times;';
                 removeBtn.addEventListener('click', () => {
                     imagePreviewContainer.removeChild(imagePreview);
+                    
+                    const dataTransfer = new DataTransfer();
+                    Array.from(event.target.files).forEach((f) => {
+                        if (f !== file) {
+                            dataTransfer.items.add(f);
+                        }
+                    });
+                    event.target.files = dataTransfer.files;
                 });
                 imagePreview.appendChild(removeBtn);
-
+    
                 imagePreviewContainer.appendChild(imagePreview);
             });
         });

@@ -6,11 +6,11 @@ Delete Product
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Are you sure you want to delete "{{ product.name }}"?</h2>
+    <h2>"{{ product.name }}" 게시물을 삭제하시겠습니까?</h2>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a href="{% url 'home' %}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-custom btn-block">삭제</button>
+        <a href="{% url 'user_profile' %}" class="btn btn-custom btn-block">취소</a>
     </form>
 </div>
 {% endblock %}

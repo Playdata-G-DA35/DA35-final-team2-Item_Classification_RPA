@@ -1,35 +1,95 @@
-<!-- product_detail.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ product.name }}</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends 'base.html' %}
 
+{% block title %}
+    {{ product.name }}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+<style>
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; 
+        overflow: hidden;
+    }
+
+    .product-image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .row-center {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; 
+    }
+
+    .col-md-4 {
+        flex: 0 0 40%; 
+        max-width: 400px; 
+        margin-right: 20px; 
+        margin-top: 20px; 
+    }
+
+    .col-md-8 {
+        flex: 0 0 60%; 
+        text-align: left; 
+        margin-top: 20px; 
+    }
+
+    .product-name {
+        font-size: 2rem; /* 글씨 크기 설정 */
+        font-weight: bold; /* 글씨 굵기 설정 */
+        margin-bottom: 10px; /* 아래 여백 */
+    }
+
+    .product-price {
+        font-size: 2.5rem; /* 글씨 크기 설정 */
+        font-weight: bold; /* 글씨 굵기 설정 */
+        margin-bottom: 10px; /* 아래 여백 */
+    }
+
+    .product-info {
+        font-size: 1.3rem; /* 글씨 크기 설정 */
+        line-height: 1.5; /* 줄 높이 설정 */
+    }
+
+    .divider {
+        border-bottom: 1px solid #d3d3d3; /* 연한 회색 분리선 */
+        margin: 20px 0; 
+    }
+
+</style>
 <div class="container mt-5">
-    <h1>{{ product.name }}</h1>
-    <p>{{ product.description }}</p>
-    <p>Price: {{ product.price }}</p>
+    <div class="row row-center">
+        <!-- 제품 이미지 -->
+        <div class="col-md-4">
+            <div class="product-image-container">
+                {% if product_file %}
+                    <img src="{{ product_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
+                {% else %}
+                    <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 제품 세부정보 -->
+        <div class="col-md-8">
+            <h2 class="product-name">{{ product.name }}</h2>
+            <p class="product-price">{{ product.price|floatformat:0 }}원</p>
+            <div class="divider"></div>
+            <p class="product-info">{{ product.description }}</p>
 
-    {% if product_file %}
-        <img src="{{ product_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
-    {% else %}
-        <p>No image available.</p>
-    {% endif %}
-
-    <!-- Chat button -->
-    {% if user.is_authenticated and user != product.user %}
-        <a href="{% url 'chat' product.product_id %}" class="btn btn-primary mt-3">Chat with Seller</a>
-    {% endif %}
+            <!-- 채팅 버튼 -->
+            {% if user.is_authenticated and user != product.user %}
+                <a href="{% url 'chat' product.product_id %}" class="btn btn-custom btn-block">채팅하기</a>
+            {% endif %}
+        </div>
+    </div>
 </div>
-
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% endblock %}
