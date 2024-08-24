@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +22,7 @@
             background-color: #ffffff;
             color: #3c3c3c;
             font-family: 'Pretendard-Regular', sans-serif;
-            padding-top: 100px; 
+            padding-top: 100px;
         }
 
         .container {
@@ -73,22 +74,16 @@
             display: none;
             position: absolute;
             top: 100%;
-            left: 100;
             background-color: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            width: 200px; /* 고정된 너비 설정 */
-            z-index: 1000;
+            width: 200px;
             transition: opacity 0.3s ease, visibility 0.3s ease;
-            height: auto; /* 높이를 자동으로 설정 */
-        }
-
-        .category-menu .category-item {
-            margin: 0;
-            padding: 0;
+            z-index: 1000;
         }
 
         .category-menu .category-item a {
             display: block;
+            margin: 0;
             padding: 10px;
             color: #333;
             text-decoration: none;
@@ -96,11 +91,11 @@
         }
 
         .category-menu .category-item a:hover {
-            background-color: #00c5bf; /* hover 색상 변경 */
-            color: #ffffff; /* hover 시 텍스트 색상 변경 (선택 사항) */
+            background-color: #00c5bf;
+            color: #ffffff;
         }
 
-        .category-menu .subcategory-menu {
+        .subcategory-menu {
             display: none;
             position: absolute;
             left: 100%;
@@ -108,8 +103,7 @@
             background-color: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             width: 200px;
-            min-height: 100%; /* 최소 높이를 상위 메뉴와 같게 설정 */
-            z-index: 1000;
+            min-height: 100%;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
@@ -127,8 +121,8 @@
         }
 
         .category-menu .subcategory-menu .subcategory-item a:hover {
-            background-color: #00c5bf; 
-            color: #ffffff; 
+            background-color: #00c5bf;
+            color: #ffffff;
         }
 
         .nav-link {
@@ -142,13 +136,15 @@
             margin-right: 5px;
         }
 
-        .btn-custom, .btn-search {
+        .btn-custom,
+        .btn-search {
             background-color: #00c5bf;
             border: none;
             color: #ffffff;
         }
 
-        .btn-custom:hover, .btn-search:hover {
+        .btn-custom:hover,
+        .btn-search:hover {
             background-color: #007296;
             color: #ffffff;
         }
@@ -214,9 +210,9 @@
 
         .nav-separator {
             display: inline-block;
-            width: 1px;
+            width: 1.3px;
             height: 15px;
-            background-color: #ced4da;
+            background-color: #d3d3d3;
             margin: 0 5px;
             vertical-align: middle;
         }
@@ -227,51 +223,52 @@
         }
     </style>
 </head>
-<body>
 
+<body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg">
-        <div class="container"> 
-            <a class="navbar-brand" href="{% url 'home' %}">
+        <div class="container">
+            <a class="navbar-brand" href="/">
                 <img src="{% static 'images/Logo.png' %}" alt="로고">
                 <i class="fa-solid fa-bars"></i>
-                <!-- 카테고리 메뉴 -->
-                <div class="category-menu">
-                    <div class="category-item">
-                        <a href="{% url 'category_products' '상의' %}">상의</a>
-                        <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '긴소매' %}">긴소매</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '셔츠_블라우스' %}">셔츠/블라우스</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '반소매' %}">반소매</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '민소매' %}">민소매</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '니트_스웨터' %}">니트/스웨터</a></div>
-                        </div>
-                    </div>
-                    <div class="category-item">
-                        <a href="{% url 'category_products' '하의' %}">하의</a>
-                        <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '긴바지' %}">긴바지</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '반바지' %}">반바지</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '스커트' %}">스커트</a></div>
-                        </div>
-                    </div>
-                    <div class="category-item">
-                        <a href="{% url 'category_products' '기타' %}">기타</a>
-                        <div class="subcategory-menu">
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '원피스' %}">원피스</a></div>
-                            <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '점프슈트_멜빵' %}">점프슈트/멜빵</a></div>
-                        </div>
-                    </div>
-                </div>              
             </a>
+            <!-- 카테고리 메뉴 -->
+            <div class="category-menu">
+                <div class="category-item">
+                    <a href="{% url 'category_products' '상의' %}">상의</a>
+                    <div class="subcategory-menu">
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '긴소매' %}">긴소매</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '셔츠_블라우스' %}">셔츠/블라우스</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '반소매' %}">반소매</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '민소매' %}">민소매</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '니트_스웨터' %}">니트/스웨터</a></div>
+                    </div>
+                </div>
+                <div class="category-item">
+                    <a href="{% url 'category_products' '하의' %}">하의</a>
+                    <div class="subcategory-menu">
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '긴바지' %}">긴바지</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '반바지' %}">반바지</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '하의' '스커트' %}">스커트</a></div>
+                    </div>
+                </div>
+                <div class="category-item">
+                    <a href="{% url 'category_products' '기타' %}">기타</a>
+                    <div class="subcategory-menu">
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '원피스' %}">원피스</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '점프슈트_멜빵' %}">점프슈트/멜빵</a></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="collapse navbar-collapse">
                 <!-- Search form linked to the search view -->
                 <form class="form-inline ml-auto search-form" method="GET" action="{% url 'search_products' %}">
                     <input class="form-control mr-sm-2" type="search" name="q" placeholder="상품명을 입력해주세요." aria-label="Search" value="{{ request.GET.q|default:'' }}">
                     <button class="btn btn-search my-2 my-sm-0" type="submit">
-                        <i class="fas fa-search"></i> 
+                        <i class="fas fa-search"></i>
                     </button>
-                </form>                
+                </form>
                 <ul class="navbar-nav ml-2">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
@@ -285,7 +282,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'chat_view' %}">
                             <i class="fa-regular fa-message" style="color: #00c5bf;"></i> 채팅하기
-                        </a>                                             
+                        </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
@@ -299,37 +296,37 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}?next={% url 'chat_view' %}">
                             <i class="fa-regular fa-message" style="color: #00c5bf;"></i> 채팅하기
-                        </a>                                             
+                        </a>
                     </li>
                     <li class="nav-item">
                         <span class="nav-separator"></span>
                     </li>
                     {% endif %}
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <span class="nav-separator"></span>
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ user.first_name }}
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="{% url 'user_profile' %}">내 프로필</a>
-                                <a class="dropdown-item" href="{% url 'logout' %}">로그아웃</a>
-                            </div>
-                        </li>
+                    <li class="nav-item dropdown">
+                        <span class="nav-separator"></span>
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{ user.first_name }}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="{% url 'user_profile' %}">내 프로필</a>
+                            <a class="dropdown-item" href="{% url 'logout' %}">로그아웃</a>
+                        </div>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">로그인</a>
-                        </li>
-                        <li class="nav-item">
-                            <span class="nav-separator"></span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">회원가입</a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">로그인</a>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-separator"></span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">회원가입</a>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
-        </div> 
+        </div>
     </nav>
 
     <!-- Main content placeholder -->
@@ -373,8 +370,9 @@
             categoryMenu.addEventListener('mouseout', (event) => {
                 if (!menuWrapper.contains(event.relatedTarget)) hideMenu();
             });
-            
+
         });
     </script>
 </body>
+
 </html>

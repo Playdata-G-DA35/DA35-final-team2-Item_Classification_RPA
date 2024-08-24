@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ subcategory.name }} - 제품 목록{% endblock %}
+{% block title %}{{ subcategory.name }}{% endblock %}
 
 {% block content %}
 <style>
@@ -8,6 +8,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 20px;
+        justify-content: center;
     }
 
     .product-item {
@@ -53,7 +54,7 @@
 
     .sort-buttons-container {
         display: flex;
-        justify-content: flex-end; /* 버튼들을 오른쪽으로 정렬 */
+        justify-content: flex-end; 
         margin-bottom: 15px;
         padding-right: 25px;
     }
@@ -65,7 +66,7 @@
     }
 
     .sort-buttons a:hover {
-        color: #007296; /* hover 시 색상 변경 */
+        color: #007296; 
     }
 
     .sort-separator {
@@ -76,9 +77,62 @@
         margin: 0 5px;
         vertical-align: middle;
     }
+
+    .price-comparison {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .price-comparison div {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-right: 1px solid #ddd;
+    }
+
+    .price-comparison div:last-child {
+        border-right: none;
+    }
+
+    .price-comparison h2 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .price-comparison p {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .page-header {
+        font-size: 1.5rem; 
+        margin: 60px 0; 
+    }
 </style>
 
-<h1>{{ subcategory.name }}</h1>
+<h1 class="page-header">{{ subcategory.name }}</h1>
+
+<h4>현재 페이지의 가격을 비교해봤어요.</h4>
+<div class="price-comparison">
+    <div>
+        <h2>평균 가격</h2>
+        <p>{{ average_price }}원</p>
+    </div>
+    <div>
+        <h2>가장 높은 가격</h2>
+        <p>{{ max_price }}원</p>
+    </div>
+    <div>
+        <h2>가장 낮은 가격</h2>
+        <p>{{ min_price }}원</p>
+    </div>
+</div>
 
 <div class="sort-buttons-container">
     <div class="sort-buttons">

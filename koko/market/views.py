@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Avg, Max, Min
 from .models import Product, ProductX, ProductFile, Chat, Category, UserProfile
 from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm, UserProfileForm
 from django.urls import path
@@ -39,17 +40,27 @@ def category_products(request, category_name, sort_by=''):
     # 상위 카테고리의 모든 제품들 가져오기
     products = Product.objects.filter(category__in=subcategories)
 
+    # 정렬
     if sort_by == 'price_asc':
         products = products.order_by('price')
     elif sort_by == 'price_desc':
         products = products.order_by('-price')
     
-    return render(request, 'category_products.html', {
+    # 가격 비교 데이터 계산
+    prices = products.values_list('price', flat=True)
+    average_price = int(prices.aggregate(Avg('price'))['price__avg']) if prices else 0
+    max_price = prices.aggregate(Max('price'))['price__max'] if prices else 0
+    min_price = prices.aggregate(Min('price'))['price__min'] if prices else 0
+
+    context = {
         'category': category,
         'subcategories': subcategories,
         'products': products,
-    })
-
+        'average_price': average_price,
+        'max_price': max_price,
+        'min_price': min_price,
+    }
+    return render(request, 'category_products.html', context)
 
 def subcategory_products(request, category_name, subcategory_name, sort_by=''):
     # 상위 카테고리 가져오기
@@ -61,16 +72,27 @@ def subcategory_products(request, category_name, subcategory_name, sort_by=''):
     # 하위 카테고리에 속한 제품들 가져오기
     products = Product.objects.filter(category=subcategory)
 
+    # 정렬
     if sort_by == 'price_asc':
         products = products.order_by('price')
     elif sort_by == 'price_desc':
         products = products.order_by('-price')
     
-    return render(request, 'subcategory_products.html', {
-        'category': category, 
+    # 가격 비교 데이터 계산
+    prices = products.values_list('price', flat=True)
+    average_price = int(prices.aggregate(Avg('price'))['price__avg']) if prices else 0
+    max_price = prices.aggregate(Max('price'))['price__max'] if prices else 0
+    min_price = prices.aggregate(Min('price'))['price__min'] if prices else 0
+
+    context = {
+        'category': category,
         'subcategory': subcategory,
         'products': products,
-    })
+        'average_price': average_price,
+        'max_price': max_price,
+        'min_price': min_price,
+    }
+    return render(request, 'subcategory_products.html', context)
 
 def chat(request):
     # Implement this view
@@ -171,7 +193,18 @@ def user_profile(request):
 
 def search_products(request):
     query = request.GET.get('q')
-    results = Product.objects.filter(name__icontains=query) if query else []
+    sort_by = request.GET.get('sort', '')  # Get sorting option
+
+    if query:
+        results = Product.objects.filter(name__icontains=query)
+        
+        if sort_by == 'price_asc':
+            results = results.order_by('price')
+        elif sort_by == 'price_desc':
+            results = results.order_by('-price')
+    else:
+        results = []
+
     return render(request, 'SER.html', {'results': results, 'query': query})
 
 @login_required
