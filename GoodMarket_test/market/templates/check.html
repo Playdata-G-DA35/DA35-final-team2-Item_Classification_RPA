@@ -21,7 +21,7 @@
         .visible {
             display: block;
         }
-        .image-info, .image-path {
+        .image-info, .image-path, .processing-result {
             display: none; /* Hidden by default */
             margin-top: 10px;
             font-size: 16px;
@@ -30,6 +30,9 @@
         .image-path {
             color: #555;
             font-size: 14px;
+        }
+        .processing-result {
+            color: #ff0000;
         }
     </style>
 </head>
@@ -45,10 +48,13 @@
                         <img src="{{ image.image.url }}" class="img-fluid" alt="YOLO Processed Image">
                     </a>
                     <div class="image-info" id="info-{{ forloop.counter }}">
-                        <p>{{ image.description }}</p>
+                        <p>{{ image.created_at }}</p>
                     </div>
                     <div class="image-path" id="path-{{ forloop.counter }}">
                         <p>{{ image.image.url }}</p>
+                    </div>
+                    <div class="processing-result" id="result-{{ forloop.counter }}">
+                        <!-- Server response will be displayed here -->
                     </div>
                 </div>
             {% endfor %}
@@ -62,14 +68,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const imageLinks = document.querySelectorAll('.image-link');
-            const imagesContainer = document.getElementById('images-container');
 
             imageLinks.forEach(link => {
                 link.addEventListener('click', function(event) {
                     event.preventDefault();  // Prevent default link behavior
                     
-                    // Get the clicked image ID
+                    // Get the clicked image ID and path
                     const imageId = this.getAttribute('data-image-id');
+                    const imagePath = this.getAttribute('data-image-path');
                     
                     // Hide all images and their info
                     imageLinks.forEach(link => {
@@ -81,13 +87,26 @@
                     imageContainer.classList.remove('hidden');
                     
                     // Hide all image info and paths
-                    document.querySelectorAll('.image-info, .image-path').forEach(info => {
+                    document.querySelectorAll('.image-info, .image-path, .processing-result').forEach(info => {
                         info.style.display = 'none';
                     });
 
                     // Show the image info and path of the clicked image
                     document.getElementById(`info-${imageId}`).style.display = 'block';
                     document.getElementById(`path-${imageId}`).style.display = 'block';
+                    
+                    // Send the image path to the server for processing
+                    fetch(`/process-image/?image_path=${encodeURIComponent(imagePath)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Display the processing result in the webpage
+                            const resultElement = document.getElementById(`result-${imageId}`);
+                            resultElement.textContent = `Processing result:\n${data.result}`;
+                            resultElement.style.display = 'block';
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 });
             });
         });

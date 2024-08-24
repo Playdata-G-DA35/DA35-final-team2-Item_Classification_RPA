@@ -302,3 +302,69 @@ def check(request):
     # 최근 5초 동안 추가된 이미지
     images = check2.objects.filter(created_at__gte=five_seconds_ago)
     return render(request, 'check.html', {'images': images})
+
+# views.py
+
+from django.http import JsonResponse
+import subprocess
+
+def process_image(request):
+    # 이미지 경로를 GET 파라미터로 받습니다
+    image_path = request.GET.get('image_path')
+    
+    # test_import.py를 호출하여 이미지 처리
+    if image_path:
+        try:
+            # Python 스크립트를 호출합니다
+            result = subprocess.run(
+                ['python', 'test_import.py', image_path],
+                capture_output=True,
+                text=True
+            )
+            # 터미널 출력 결과를 로그로 남깁니다
+            print(result.stdout)
+            print(result.stderr)
+            output = result.stdout
+        except Exception as e:
+            output = f"Error occurred: {e}"
+    else:
+        output = "No image path provided."
+    
+    return JsonResponse({'result': output})
+
+
+# views.py
+
+from django.http import JsonResponse
+from django.core.files.storage import default_storage
+import subprocess
+import os
+
+def process_image(request):
+    image_path = request.GET.get('image_path')
+    
+    if image_path:
+        # 웹 경로를 실제 파일 시스템 경로로 변환
+        full_path = default_storage.path(image_path)
+        
+        if os.path.exists(full_path):
+            try:
+                # test_import.py를 호출하여 이미지 처리
+                result = subprocess.run(
+                    ['python', 'test_import.py', full_path],
+                    capture_output=True,
+                    text=True
+                )
+                # 서버 로그(터미널)에 출력
+                print(result.stdout)
+                print(result.stderr)
+                output = result.stdout
+            except Exception as e:
+                output = f"Error occurred: {e}"
+        else:
+            output = "File not found."
+    else:
+        output = "No image path provided."
+    
+    # 클라이언트에게 처리 결과 반환
+    return JsonResponse({'result': output})
