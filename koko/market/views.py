@@ -8,6 +8,7 @@ from django.db.models import Avg, Max, Min
 from .models import Product, ProductX, ProductFile, Chat, Category, UserProfile
 from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm, UserProfileForm
 from django.urls import path
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
@@ -19,12 +20,15 @@ def product_x_detail(request, product_x_id):
     file = get_object_or_404(ProductX, product_x_id=product_x_id)
     return render(request, 'PRD.html', {'file': file})
 
-def delete_product(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
+def product_delete(request, product_id):
     if request.method == 'POST':
-        product.delete()
-        return redirect('home')
-    return render(request, 'confirm_delete.html', {'product': product})
+        product = get_object_or_404(Product, pk=product_id)
+        if product.user == request.user:  # 사용자 확인
+            product.delete()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': '권한이 없습니다.'})
+    return JsonResponse({'success': False, 'error': '잘못된 요청입니다.'})
 
 def sell_product(request):
     # Implement this view
@@ -193,19 +197,36 @@ def user_profile(request):
 
 def search_products(request):
     query = request.GET.get('q')
-    sort_by = request.GET.get('sort', '')  # Get sorting option
+    sort_by = request.GET.get('sort', '')  
 
     if query:
+        # 검색 결과 필터링
         results = Product.objects.filter(name__icontains=query)
         
+        # 정렬
         if sort_by == 'price_asc':
             results = results.order_by('price')
         elif sort_by == 'price_desc':
             results = results.order_by('-price')
+        
+        # 가격 비교 데이터 계산
+        prices = results.values_list('price', flat=True)
+        average_price = int(prices.aggregate(Avg('price'))['price__avg']) if prices else 0
+        max_price = prices.aggregate(Max('price'))['price__max'] if prices else 0
+        min_price = prices.aggregate(Min('price'))['price__min'] if prices else 0
     else:
         results = []
+        average_price = 0
+        max_price = 0
+        min_price = 0
 
-    return render(request, 'SER.html', {'results': results, 'query': query})
+    return render(request, 'SER.html', {
+        'results': results,
+        'query': query,
+        'average_price': average_price,
+        'max_price': max_price,
+        'min_price': min_price,
+    })
 
 def img_search(request):
     # 테스트

@@ -79,9 +79,69 @@
         text-decoration: none;
         color: inherit;
     }
+
+    .price-comparison {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .price-comparison div {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-right: 1px solid #ddd;
+    }
+
+    .price-comparison div:last-child {
+        border-right: none;
+    }
+
+    .price-comparison h2 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .price-comparison p {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    h3 {
+        margin-top: 70px; 
+        text-align: center;
+    }
+
+    h4 {
+        margin-top: 30px; 
+        margin-bottom: 30px; 
+        text-align: center;
+    }
+
 </style>
 
-<h1>"{{ query }}" 에 대한 검색 결과</h1>
+<h3>"{{ query }}" 에 대한 검색 결과</h3>
+
+<h4>현재 페이지의 가격을 비교해봤어요.</h4>
+<div class="price-comparison">
+    <div>
+        <h2>평균 가격</h2>
+        <p>{{ average_price|intcomma  }}원</p>
+    </div>
+    <div>
+        <h2>가장 높은 가격</h2>
+        <p>{{ max_price|intcomma }}원</p>
+    </div>
+    <div>
+        <h2>가장 낮은 가격</h2>
+        <p>{{ min_price|intcomma }}원</p>
+    </div>
+</div>
 
 <div class="sort-buttons-container">
     <div class="sort-buttons">

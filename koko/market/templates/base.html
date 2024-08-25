@@ -192,20 +192,38 @@
             border: 1px solid #ced4da;
             padding: 0 15px;
             width: 100%;
-            max-width: 400px;
+            max-width: 370px;
         }
 
-        .search-form .btn-search {
-            height: 40px;
+        .search-form .btn-search,
+        .search-form .btn-image {
+            height: 40px; 
+            width: 40px; 
             border: none;
             color: #ffffff;
             background-color: #00c5bf;
-            margin-left: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 5px;
+            padding: 0;
         }
 
-        .search-form .btn-search:hover {
+        .search-form .btn-search:hover,
+        .search-form .btn-image:hover {
             background-color: #007296;
             color: #ffffff;
+        }
+
+        .search-form .btn-image i { 
+            color: #ffffff;
+            font-size: 1.25rem; 
+        }
+
+        .search-form .btn-search i {
+            font-size: 1.25rem; 
         }
 
         .nav-separator {
@@ -266,13 +284,18 @@
                 <!-- 검색 -->
                 <form class="form-inline ml-auto search-form" method="GET" action="{% url 'search_products' %}">
                     <input class="form-control mr-sm-2" type="search" name="q" placeholder="상품명을 입력해주세요." aria-label="Search" value="{{ request.GET.q|default:'' }}">
-                    <button type="button" onclick="location.href='{% url 'img_search' %}'" style="border: none; background: transparent;">
-                        <i class="fa-regular fa-image" style="color: #00c5bf;"></i>
+                    
+                    <!-- 이미지 버튼 -->
+                    <button type="button" onclick="location.href='img_search'" class="btn-image">
+                        <i class="fa-regular fa-image"></i>
                     </button>
+
+                    <!-- 검색 버튼 -->
                     <button class="btn btn-search my-2 my-sm-0" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
+                
                 <ul class="navbar-nav ml-2">
                     {% if user.is_authenticated %}
                     <li class="nav-item">
