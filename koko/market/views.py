@@ -207,6 +207,10 @@ def search_products(request):
 
     return render(request, 'SER.html', {'results': results, 'query': query})
 
+def img_search(request):
+    # 테스트
+    return render(request, 'img_search.html')
+
 @login_required
 def add_product(request):
     if request.method == 'POST':

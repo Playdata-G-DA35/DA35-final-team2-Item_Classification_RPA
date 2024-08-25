@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load humanize %}
+
 {% load static %}
 
 {% block title %}
@@ -127,9 +129,9 @@
             <div class="profile-section"> 
                 <div class="profile-image-container" onclick="document.getElementById('profile-image-input').click();">
                     {% if user.profile.profile_image %}
-                        <img src="{{ user.profile.profile_image.url }}" alt="Profile Image" id="profile-image">
+                        <img src="{{ user.profile.profile_image.url }}" alt="Profile Image" id="profile-image" style="border: 1px solid lightgray;">
                     {% else %}
-                        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Image" id="profile-image">
+                        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Image" id="profile-image" style="border: 1px solid lightgray;">
                     {% endif %}
                 </div>
                 
@@ -170,7 +172,7 @@
                     </div>
                     <div class="card-body text-right">
                         <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.price|floatformat:0 }}원</p>
+                        <p class="card-text">{{ product.price|floatformat:0|intcomma }}원</p>
                         {% if product.user == user %}
                             <a href="{% url 'product_delete' product.product_id %}" class="btn btn-danger" onclick="return confirm('정말로 삭제하시겠습니까?');">삭제</a>
                         {% endif %}

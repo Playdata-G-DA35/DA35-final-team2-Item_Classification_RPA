@@ -5,7 +5,11 @@
 {% endblock %}
 
 {% block content %}
+
+{% load humanize %}
+
 {% load static %}
+
 <style>
     .product-image-container {
         position: relative;
@@ -42,25 +46,30 @@
         margin-top: 20px; 
     }
 
+    .profile-name {
+        font-size: 1.5rem; 
+        font-weight: bold; 
+    }
+
     .product-name {
-        font-size: 2rem; /* 글씨 크기 설정 */
-        font-weight: bold; /* 글씨 굵기 설정 */
-        margin-bottom: 10px; /* 아래 여백 */
+        font-size: 2rem; 
+        font-weight: bold; 
+        margin-bottom: 10px;
     }
 
     .product-price {
-        font-size: 2.5rem; /* 글씨 크기 설정 */
-        font-weight: bold; /* 글씨 굵기 설정 */
-        margin-bottom: 10px; /* 아래 여백 */
+        font-size: 2.5rem; 
+        font-weight: bold; 
+        margin-bottom: 10px; 
     }
 
     .product-info {
-        font-size: 1.3rem; /* 글씨 크기 설정 */
-        line-height: 1.5; /* 줄 높이 설정 */
+        font-size: 1.3rem; 
+        line-height: 1.5; 
     }
 
     .divider {
-        border-bottom: 1px solid #d3d3d3; /* 연한 회색 분리선 */
+        border-bottom: 1px solid #d3d3d3;
         margin: 20px 0; 
     }
 
@@ -70,26 +79,19 @@
         <!-- 제품 이미지 -->
         <div class="col-md-4">
             <div class="product-image-container">
-                {% if product_file %}
-                    <img src="{{ product_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
-                {% else %}
-                    <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
-                {% endif %}
+                <img src="{{ product_file.file.url }}" class="img-fluid" alt="{{ product.name }}" style="border: 1px solid lightgray;">
             </div>
         </div>
-        
         <!-- 제품 세부정보 -->
         <div class="col-md-8">
             <h2 class="product-name">{{ product.name }}</h2>
-            <p class="product-price">{{ product.price|floatformat:0 }}원</p>
+            <p class="product-price">{{ product.price|floatformat:0|intcomma }}원</p>
             <div class="divider"></div>
             <p class="product-info">{{ product.description }}</p>
-
-            <!-- 채팅 버튼 -->
-            {% if user.is_authenticated and user != product.user %}
-                <a href="{% url 'chat' product.product_id %}" class="btn btn-custom btn-block">채팅하기</a>
-            {% endif %}
         </div>
     </div>
 </div>
 {% endblock %}
+
+
+

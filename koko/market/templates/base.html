@@ -221,6 +221,7 @@
             display: flex;
             align-items: center;
         }
+
     </style>
 </head>
 
@@ -238,10 +239,10 @@
                     <a href="{% url 'category_products' '상의' %}">상의</a>
                     <div class="subcategory-menu">
                         <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '긴소매' %}">긴소매</a></div>
-                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '셔츠_블라우스' %}">셔츠/블라우스</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '셔츠&블라우스' %}">셔츠/블라우스</a></div>
                         <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '반소매' %}">반소매</a></div>
                         <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '민소매' %}">민소매</a></div>
-                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '니트_스웨터' %}">니트/스웨터</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '상의' '니트&스웨터' %}">니트/스웨터</a></div>
                     </div>
                 </div>
                 <div class="category-item">
@@ -256,15 +257,18 @@
                     <a href="{% url 'category_products' '기타' %}">기타</a>
                     <div class="subcategory-menu">
                         <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '원피스' %}">원피스</a></div>
-                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '점프슈트_멜빵' %}">점프슈트/멜빵</a></div>
+                        <div class="subcategory-item"><a href="{% url 'subcategory_products' '기타' '점프슈트&멜빵' %}">점프슈트/멜빵</a></div>
                     </div>
                 </div>
             </div>
 
             <div class="collapse navbar-collapse">
-                <!-- Search form linked to the search view -->
+                <!-- 검색 -->
                 <form class="form-inline ml-auto search-form" method="GET" action="{% url 'search_products' %}">
                     <input class="form-control mr-sm-2" type="search" name="q" placeholder="상품명을 입력해주세요." aria-label="Search" value="{{ request.GET.q|default:'' }}">
+                    <button type="button" onclick="location.href='{% url 'img_search' %}'" style="border: none; background: transparent;">
+                        <i class="fa-regular fa-image" style="color: #00c5bf;"></i>
+                    </button>
                     <button class="btn btn-search my-2 my-sm-0" type="submit">
                         <i class="fas fa-search"></i>
                     </button>

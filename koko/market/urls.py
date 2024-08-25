@@ -20,6 +20,7 @@ urlpatterns = [
     path('profile/', views.user_profile, name='user_profile'),
     path('profile/update/', views.profile_update, name='profile_update'),
     path('search/', views.search_products, name='search_products'),
+    path('img_search/', views.img_search, name='img_search'),
     path('find_id/', views.find_id, name='find_id'),
     path('find_id/result/', views.find_id, name='find_id_result'),
     path('find_passwd/', views.find_passwd, name='find_passwd'),

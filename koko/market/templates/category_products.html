@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load humanize %}
+
 {% block title %}{{ category.name }}{% endblock %}
 
 {% block content %}
@@ -110,27 +112,21 @@
         margin: 0;
     }
 
-    .page-header {
-        font-size: 1.5rem; 
-        margin: 60px 0;
-    }
 </style>
 
-<h1 class="page-header">{{ category.name }}</h1>
-
-<h4>현재 페이지의 가격을 비교해봤어요.</h4>
+<h4>'{{ category.name }}' 페이지의 가격을 비교해봤어요.</h4>
 <div class="price-comparison">
     <div>
         <h2>평균 가격</h2>
-        <p>{{ average_price }}원</p>
+        <p>{{ average_price|intcomma  }}원</p>
     </div>
     <div>
         <h2>가장 높은 가격</h2>
-        <p>{{ max_price }}원</p>
+        <p>{{ max_price|intcomma }}원</p>
     </div>
     <div>
         <h2>가장 낮은 가격</h2>
-        <p>{{ min_price }}원</p>
+        <p>{{ min_price|intcomma }}원</p>
     </div>
 </div>
 
@@ -153,7 +149,7 @@
                         {% endif %}
                         <div class="card-body text-right">
                             <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.price|floatformat:0 }}원</p>
+                            <p class="card-text">{{ product.price|floatformat:0|intcomma }}원</p>
                         </div>
                     </a>
                 </div>
