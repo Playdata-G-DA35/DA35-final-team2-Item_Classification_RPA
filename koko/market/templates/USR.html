@@ -174,7 +174,7 @@
                         <h5 class="card-title">{{ product.name }}</h5>
                         <p class="card-text">{{ product.price|floatformat:0|intcomma }}원</p>
                         {% if product.user == user %}
-                            <button class="btn btn-save mt-2" data-product-id="{{ product.product_id }}">삭제</button>
+                            <button class="btn btn-save delete-product mt-2" data-product-id="{{ product.product_id }}">삭제</button>
                         {% endif %}
                     </div>
                 </div>
@@ -194,7 +194,6 @@
         }
         reader.readAsDataURL(event.target.files[0]);
     }
-
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-product').forEach(button => {
             button.addEventListener('click', function() {

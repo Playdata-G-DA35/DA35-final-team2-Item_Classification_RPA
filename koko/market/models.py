@@ -19,9 +19,9 @@ class Product(models.Model):
     product_id = models.AutoField(primary_key=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=40)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    description = models.TextField()
+    description = models.TextField(max_length=2000)
     reg_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
