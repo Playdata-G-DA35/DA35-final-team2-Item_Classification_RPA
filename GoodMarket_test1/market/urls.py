@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from .views import add_product, save_selected_image, find_image
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -23,6 +23,7 @@ urlpatterns = [
     path('find_passwd/', views.find_passwd, name='find_passwd'),
     path('reset_passwd/', views.reset_passwd, name='reset_passwd'),
     path('reset_passwd/done/', views.reset_passwd_done, name='reset_passwd_done'),
-    
+    path('save-selected-image/', save_selected_image, name='save_selected_image'),  # Ensure this line exists
+    path('find-image/', find_image, name='find_image'),  # Add this line for findimage.html
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

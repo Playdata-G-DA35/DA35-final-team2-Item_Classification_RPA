@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Image</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/8ef7c270b7.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4">Find Similar Images</h2>
+        <form id="findImageForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="image_file">Upload Image</label>
+                <input type="file" name="image_file" class="form-control" id="image_file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Find Similar Images</button>
+        </form>
+
+        <div id="results" class="mt-4">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('findImageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(this);
+
+            fetch("{% url 'find_image' %}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsContainer = document.getElementById('results');
+                resultsContainer.innerHTML = '';
+
+                if (data.success) {
+                    data.results.forEach(result => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = `/media/find_images/${result.id}`;
+                        imgElement.alt = `Image ${result.id}`;
+                        imgElement.style.width = '150px';
+                        imgElement.style.height = '150px';
+                        imgElement.style.objectFit = 'cover';
+
+                        const scoreElement = document.createElement('p');
+                        scoreElement.textContent = `Score: ${result.score}`;
+
+                        resultsContainer.appendChild(imgElement);
+                        resultsContainer.appendChild(scoreElement);
+                    });
+                } else {
+                    resultsContainer.textContent = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -53,30 +53,8 @@
             display: block;
         }
 
-        .image-preview .remove-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: #00c5bf;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            line-height: 15px;
-            cursor: pointer;
-            z-index: 10;
-        }
-
         .alert {
             margin-top: 20px;
-        }
-
-        .image-info {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
         }
 
         .selected-info {
@@ -177,6 +155,8 @@
 
         <div id="selectedImageInfo" class="selected-info">
             <p>선택된 이미지: <span id="selectedImagePath">없음</span></p>
+            <!-- 카테고리 정보 표시 -->
+            <p>카테고리: <span id="selectedCategory">없음</span></p>
         </div>
         
         <!-- 선택 완료 버튼 -->
@@ -189,6 +169,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const recentImages = document.querySelectorAll('.image-preview');
             const selectedImagePathElement = document.getElementById('selectedImagePath');
+            const selectedCategoryElement = document.getElementById('selectedCategory');
             const confirmButtonContainer = document.getElementById('confirmButtonContainer');
             const confirmSelection = document.getElementById('confirmSelection');
             const selectedImageUrlInput = document.getElementById('selectedImageUrl');
@@ -225,8 +206,28 @@
             // Handle the confirm selection button
             confirmSelection.addEventListener('click', function() {
                 if (selectedImageUrl) {
-                    // Hide the confirmation button
-                    confirmButtonContainer.classList.add('hidden');
+                    fetch("{% url 'save_selected_image' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: new URLSearchParams({
+                            'image_url': selectedImageUrl
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            selectedCategoryElement.textContent = data.category;
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 }
             });
         });

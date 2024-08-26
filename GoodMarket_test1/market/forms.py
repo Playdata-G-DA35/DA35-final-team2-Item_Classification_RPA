@@ -127,3 +127,12 @@ class ProductCheckForm(forms.ModelForm):
     class Meta:
         model = ProductCheck
         fields = ['image']
+
+# forms.py
+from django import forms
+from .models import FindImage
+
+class FindImageForm(forms.ModelForm):
+    class Meta:
+        model = FindImage
+        fields = ['image']

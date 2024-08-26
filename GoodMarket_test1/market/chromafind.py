@@ -12,7 +12,7 @@ import django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Django 설정 모듈 지정 및 초기화
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GoodMarket.settings')  # 'GoodMarket.settings'는 Django 프로젝트 설정 파일 경로
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'GoodMarket.settings')
 django.setup()
 
 from market.models import ProductFile
@@ -28,7 +28,7 @@ class ImageEmbeddingModel:
     def create_model(self, weight_file, class_num, embedding):
         base_model = models.resnet50(weights=None)
         base_model.fc = nn.Linear(2048, class_num)
-        base_model.load_state_dict(torch.load(weight_file, map_location='cpu'))
+        base_model.load_state_dict(torch.load(weight_file, map_location='cpu', weights_only=True))
         base_model.eval()
 
         if embedding:
@@ -89,7 +89,7 @@ def embed_and_store_product_images(model_info_dict):
         emb_vec = base_model.get_embedding()
         category = base_model.get_category()
 
-        image_id = str(product_file.product_file_id)
+        image_id = str(product_file.product_file_id)  # 필드명 `product_file_id`로 수정
         embedding_vector = emb_vec.tolist()
         
         images_collection.add(
@@ -131,14 +131,17 @@ def find_similar_images(img_path, cate_big, model_info_dict, top_k=4):
     top_similar_images = similarities[:top_k]
 
     for similarity, product_file_id in top_similar_images:
-        product_file = ProductFile.objects.get(product_file_id=product_file_id)
-        print(f"유사한 이미지: {product_file.file.url}, 유사도: {similarity}")
+        try:
+            product_file = ProductFile.objects.get(product_file_id=product_file_id)  # 필드명 `product_file_id`로 수정
+            print(f"유사한 이미지: {product_file.file.url}, 유사도: {similarity}")
+        except ProductFile.DoesNotExist:
+            print(f"Error: ProductFile with id {product_file_id} does not exist.")
     
     return top_similar_images
 
 # 모델 정보 딕셔너리
 model_info_dict = {
-    "onepiece": [r"C:\Users\USER\Desktop\GoodMarket\059.pth", 3]
+    "onepiece": [r"C:\Users\USER\Desktop\GoodMarket_test1\059.pth", 3]
 }
 
 if __name__ == "__main__":

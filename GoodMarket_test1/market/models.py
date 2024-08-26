@@ -58,3 +58,23 @@ class check2(models.Model):
 
     def __str__(self):
         return f"Check2 Image {self.id}"
+
+# models.py
+from django.db import models
+
+class FinalModel(models.Model):
+    image = models.ImageField(upload_to='final_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.image.name
+
+# models.py
+from django.db import models
+
+class FindImage(models.Model):
+    image = models.ImageField(upload_to='find_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"FindImage {self.id} - {self.created_at}"
