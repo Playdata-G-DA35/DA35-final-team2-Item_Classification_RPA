@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% load static %}
+
+{% block title %}
+내 프로필
+{% endblock %}
+
+{% block content %}
+<style>
+    .profile-container {
+        margin-top: 50px;
+    }
+
+    .profile-header {
+        background-color: #f5f5f5; 
+        padding: 20px; 
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+        margin-bottom: 20px;
+    }
+
+    .profile-image-container {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto; 
+        cursor: pointer;
+        margin-top: 20px; 
+    }
+
+    .profile-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .profile-username {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center; 
+    }
+
+    .profile-image-note {
+        font-size: 15px; 
+        text-align: center; 
+        margin-top: 25px; 
+        margin-bottom: 5px;
+        color: #555; 
+    }
+
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        overflow: hidden;
+    }
+
+    .product-image-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hidden-input {
+        display: none;
+    }
+
+    .divider {
+        border-bottom: 1px solid #d3d3d3;
+        margin: 20px 0; 
+    }
+
+    .btn-save {
+        font-size: 15px;
+        background-color: #00c5bf; 
+        color: #fff;
+        transition: background-color 0.3s ease;
+        float: right;
+        margin-top: 5px; 
+    }
+
+    .btn-save:hover {
+        background-color: #007296; 
+        color: #fff;
+    }
+
+    .vr {
+        border-left: 1px solid #d3d3d3; 
+        height: 240px;
+        margin: 0 20px; 
+    }
+
+    .profile-section {
+        flex: 1; 
+        display: flex;
+        align-items: center; 
+        flex-direction: column; 
+    }
+
+    .profile-info-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; 
+        align-items: flex-start; 
+        height: 100%;
+        width: 100%;
+        padding-left: 20px;
+    }
+
+    .profile-info-container p {
+        margin: 10px 0;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        margin-bottom: 0;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<div class="profile-container mt-5">
+    <h2 class="profile-header">내 프로필</h2>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'profile_update' %}">
+        {% csrf_token %}
+        {{ form.as_p }} 
+        <div class="profile-header d-flex">
+            <div class="profile-section"> 
+                <div class="profile-image-container" onclick="document.getElementById('profile-image-input').click();">
+                    {% if user.profile.profile_image %}
+                        <img src="{{ user.profile.profile_image.url }}" alt="Profile Image" id="profile-image" style="border: 1px solid lightgray;">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" alt="Default Profile Image" id="profile-image" style="border: 1px solid lightgray;">
+                    {% endif %}
+                </div>
+                
+                <p class="profile-image-note">이미지 클릭 시 변경이 가능합니다.<br>변경 후 저장 버튼을 꼭 눌러주세요.</p>
+                
+                <input type="file" id="profile-image-input" name="profile_image" class="hidden-input" accept="image/*" onchange="previewProfileImage(event)">
+                <button type="submit" class="btn btn-save mt-2">저장</button>
+            </div>
+
+            <div class="vr"></div> 
+
+            <div class="profile-section"> 
+                <div class="profile-info-container">
+                    <p><strong>아이디<span class="nav-separator"></span></strong> {{ user.username }}</p>
+                    <p><strong>이름<span class="nav-separator"></span></strong> {{ user.first_name }}</p>
+                    <p><strong>이메일<span class="nav-separator"></span></strong> {{ user.email }}</p>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <h3 class="mt-4">판매 상품</h3>
+    <div class="divider"></div>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card product-card">
+                    <div class="product-image-container">
+                        {% if product.files.all %}
+                            <a href="{% url 'product_detail' product.product_id %}">
+                                <img src="{{ product.files.first.file.url }}" class="img-fluid" alt="{{ product.name }}">
+                            </a>
+                        {% else %}
+                            <a href="{% url 'product_detail' product.product_id %}">
+                                <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="card-body text-right">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.price|floatformat:0|intcomma }}원</p>
+                        {% if product.user == user %}
+                            <button class="btn btn-save delete-product mt-2" data-product-id="{{ product.product_id }}">삭제</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p>등록한 상품이 없습니다.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function previewProfileImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('profile-image');
+            output.src = reader.result;
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-product-id');
+                if (confirm('정말로 삭제하시겠습니까?')) {
+                    fetch(`/product/${productId}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': document.querySelector('input[name="csrfmiddlewaretoken"]').value
+                        }
+                    }).then(response => response.json()).then(data => {
+                        if (data.success) {
+                            window.location.href = "{% url 'user_profile' %}";
+                        } else {
+                            alert(data.error || '삭제에 실패했습니다.');
+                        }
+                    }).catch(error => {
+                        alert('서버와의 통신 중 오류가 발생했습니다.');
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
