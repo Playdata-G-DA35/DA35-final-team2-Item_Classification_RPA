@@ -251,7 +251,7 @@ def add_product(request):
     else:
         product_form = ProductForm()
 
-    return render(request, 'ADD.html', {
+    return render(request, 'ADD_TESt.html', {
         'product_form': product_form,
     })
 
