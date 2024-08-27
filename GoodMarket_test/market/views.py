@@ -243,7 +243,7 @@ from urllib.parse import unquote
 
 # 모델 정보 딕셔너리 정의
 model_info_dict = {
-    "onepiece": [r"C:\Users\USER\Desktop\GoodMarket_test1\059.pth", 3]
+    "onepiece": [r"C:\Users\USER\Desktop\chroma_db_data\059.pth", 3]
     # 필요한 다른 카테고리와 모델 정보를 추가
 }
 
@@ -387,12 +387,13 @@ def save_selected_image(request):
 
 # views.py
 
-# views.py
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
+from django.urls import reverse  # reverse 함수 임포트
 import os
+import glob
 from django.conf import settings
+from datetime import datetime, timedelta
 from .chromafind import find_similar_images
 from .models import ProductFile, Product, FindImage
 
@@ -408,14 +409,54 @@ def find_image(request):
             file_path = os.path.join(settings.MEDIA_ROOT, find_image_instance.image.name)
 
             try:
+                # 1. YOLO 모델을 사용하여 업로드된 이미지 크롭
+                output_dir = os.path.join(settings.MEDIA_ROOT, 'cropped_images')
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                os.system(f"python detect_clothes/detect.py --source \"{file_path}\" --project \"{output_dir}\"")
+
+                # 2. 업로드된 이미지에 대해서만 크롭된 이미지 파일 경로 찾기 (5초 이내)
+                now = datetime.now()
+                five_seconds_ago = now - timedelta(seconds=5)
+                
+                cropped_image_files = []
+                for img_file in glob.glob(os.path.join(output_dir, '**', '*.*'), recursive=True):
+                    # 이미지 파일의 수정 시간을 가져와 5초 이내인지 확인
+                    file_mtime = datetime.fromtimestamp(os.path.getmtime(img_file))
+                    if file_mtime > five_seconds_ago:
+                        # 'crops' 디렉토리 하위의 이미지 파일만 필터링
+                        if '/crops/' in img_file.replace("\\", "/"):
+                            cropped_image_files.append(img_file)
+
+                if not cropped_image_files:  # 크롭된 이미지가 없을 때 처리
+                    return JsonResponse({'success': True, 'cropped_images': []})
+
+                # 크롭된 이미지들을 클라이언트에게 전송
+                cropped_image_urls = [os.path.relpath(img, start=settings.MEDIA_ROOT) for img in cropped_image_files]
+                return JsonResponse({'success': True, 'cropped_images': cropped_image_urls})
+
+            except Exception as e:
+                # 에러 발생 시 에러 메시지 반환
+                return JsonResponse({'success': False, 'message': str(e)})
+            finally:
+                # 원본 이미지 파일 삭제 (선택 사항)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+    return render(request, 'findimage.html')
+
+def search_similar_images(request):
+    if request.method == 'POST':
+        clicked_image_url = request.POST.get('image_url')
+        if clicked_image_url:
+            file_path = os.path.join(settings.MEDIA_ROOT, clicked_image_url)
+            
+            try:
                 # 유사 이미지 검색
                 model_info_dict = {
-                    "onepiece": [r"C:\Users\USER\Desktop\GoodMarket_test1\059.pth", 3]
-                    # 필요한 다른 카테고리와 모델 정보를 추가
+                    "onepiece": [r"C:\Users\USER\Desktop\chroma_db_data\059.pth", 3]
                 }
-                similar_images = find_similar_images(file_path, "onepiece", model_info_dict, top_k=4)
-                if not similar_images:  # 유사 이미지가 없을 때 처리
-                    return JsonResponse({'success': True, 'results': []})
+                similar_images = find_similar_images(file_path, "onepiece", model_info_dict, top_k=8)
 
                 results = []
                 for similarity, product_file_id in similar_images:
@@ -427,19 +468,15 @@ def find_image(request):
                             'score': similarity,
                             'product_name': product.name,
                             'product_price': product.price,
-                            'product_description': product.description
+                            'product_description': product.description,
+                            'product_image_url': product_file.file.url,
+                            'product_detail_url': request.build_absolute_uri(reverse('product_detail', args=[product.product_id]))
                         })
                     except ProductFile.DoesNotExist:
                         continue
 
-                # 성공 응답 반환
                 return JsonResponse({'success': True, 'results': results})
             except Exception as e:
-                # 에러 발생 시 에러 메시지 반환
                 return JsonResponse({'success': False, 'message': str(e)})
-            finally:
-                # 이미지 파일 삭제 (선택 사항)
-                if os.path.exists(file_path):
-                    os.remove(file_path)
 
-    return render(request, 'findimage.html')
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})

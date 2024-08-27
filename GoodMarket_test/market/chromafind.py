@@ -99,7 +99,7 @@ def embed_and_store_product_images(model_info_dict):
         except Exception as e:
             print(f"Error processing image {product_file.product_file_id}: {e}")
 
-def find_similar_images(img_path, cate_big, model_info_dict, top_k=4):
+def find_similar_images(img_path, cate_big, model_info_dict, top_k=8):
     base_model = ImageEmbeddingModel(
         weight_path=model_info_dict[cate_big][0], 
         class_num=model_info_dict[cate_big][1], 

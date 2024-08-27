@@ -2,118 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Image</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/8ef7c270b7.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h2 class="mt-4">Find Similar Images</h2>
-        <form id="findImageForm" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="image_file">Upload Image</label>
-                <input type="file" name="image_file" class="form-control" id="image_file" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Find Similar Images</button>
-        </form>
+    <h1>Upload an Image</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image_file" id="image_file">
+        <button type="submit">Upload</button>
+    </form>
 
-        <div id="results" class="mt-4">
-            <!-- Results will be displayed here -->
-        </div>
-    </div>
+    <div id="cropped-images"></div>
+    <div id="similar-images"></div>
 
     <script>
-        document.getElementById('findImageForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const formData = new FormData(this);
-    
-            fetch("{% url 'find_image' %}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultsContainer = document.getElementById('results');
-                resultsContainer.innerHTML = '';
-    
-                if (data.success) {
-                    if (data.results.length === 0) {
-                        resultsContainer.textContent = 'No similar images found.';
-                    } else {
-                        data.results.forEach(result => {
-                            const card = document.createElement('div');
-                            card.className = 'card mb-3';
-                            card.style.maxWidth = '540px';
+        // 이미지 업로드 및 크롭된 이미지 표시
+        $('#upload-form').on('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
 
-                            const row = document.createElement('div');
-                            row.className = 'row no-gutters';
-
-                            const colImg = document.createElement('div');
-                            colImg.className = 'col-md-4';
-
-                            const imgLink = document.createElement('a');
-                            imgLink.href = `/product/${result.id}/`;  // Dynamically created URL
-
-                            const imgElement = document.createElement('img');
-                            imgElement.src = `/media/${result.id}`;
-                            imgElement.alt = `Image ${result.id}`;
-                            imgElement.className = 'card-img';
-                            imgElement.style.objectFit = 'cover';
-                            imgElement.style.height = '150px';
-
-                            imgLink.appendChild(imgElement);  // Wrap image with the link
-                            colImg.appendChild(imgLink);
-                            row.appendChild(colImg);
-
-                            const colText = document.createElement('div');
-                            colText.className = 'col-md-8';
-
-                            const cardBody = document.createElement('div');
-                            cardBody.className = 'card-body';
-
-                            const productLink = document.createElement('a');
-                            productLink.href = `/product/${result.id}/`;  // Dynamically created URL
-                            productLink.className = 'card-title';
-                            productLink.textContent = result.product_name;
-                            
-                            const productName = document.createElement('h5');
-                            productName.appendChild(productLink);
-
-                            const productPrice = document.createElement('p');
-                            productPrice.className = 'card-text';
-                            productPrice.textContent = `Price: $${result.product_price}`;
-
-                            const productDescription = document.createElement('p');
-                            productDescription.className = 'card-text';
-                            productDescription.textContent = result.product_description;
-
-                            const scoreElement = document.createElement('p');
-                            scoreElement.className = 'card-text';
-                            scoreElement.textContent = `Score: ${result.score}`;
-
-                            cardBody.appendChild(productName);
-                            cardBody.appendChild(productPrice);
-                            cardBody.appendChild(productDescription);
-                            cardBody.appendChild(scoreElement);
-                            colText.appendChild(cardBody);
-                            row.appendChild(colText);
-
-                            card.appendChild(row);
-                            resultsContainer.appendChild(card);
+            $.ajax({
+                url: "{% url 'find_image' %}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#cropped-images').empty();
+                    if (response.success) {
+                        response.cropped_images.forEach(function(imageUrl) {
+                            $('#cropped-images').append(
+                                '<img src="/media/' + imageUrl + '" class="cropped-image" style="width: 150px; margin: 10px;">'
+                            );
                         });
                     }
-                } else {
-                    resultsContainer.textContent = `Error: ${data.message}`;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+            });
+        });
+
+        // 클릭한 이미지와 유사한 이미지 검색
+        $(document).on('click', '.cropped-image', function() {
+            var imageUrl = $(this).attr('src').replace('/media/', '');
+
+            $.ajax({
+                url: "{% url 'search_similar_images' %}",
+                type: "POST",
+                data: {
+                    'image_url': imageUrl,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    $('#similar-images').empty();
+                    if (response.success) {
+                        response.results.forEach(function(result) {
+                            $('#similar-images').append(
+                                '<div>' +
+                                    '<a href="' + result.product_detail_url + '">' +  // 링크 추가
+                                        '<img src="' + result.product_image_url + '" style="width: 150px;">' +
+                                    '</a>' +
+                                    '<p>' + result.product_name + '</p>' +
+                                    '<p>Price: ' + result.product_price + '</p>' +
+                                    '<p>' + result.product_description + '</p>' +
+                                '</div>'
+                            );
+                        });
+                    }
+                }
             });
         });
     </script>
-    
 </body>
 </html>

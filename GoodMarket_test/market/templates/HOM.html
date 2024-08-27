@@ -29,6 +29,7 @@
     }
 </style>
 
+<!-- Carousel for banners -->
 <div id="bannerCarousel" class="carousel slide" data-ride="carousel">
     <div class="carousel-inner">
         <div class="carousel-item active">
@@ -50,29 +51,33 @@
 </div>
 
 <div class="mt-5">
-    <h2></h2>
+    <h2>Product List</h2>
     <div class="row">
         {% for product in products %}
-            <div class="col-md-3 mb-4">
-                <div class="card product-card">
-                    {% if product.first_file %}
-                        <a href="{% url 'product_detail' product.product_id %}">
-                            <img src="{{ product.first_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
-                        </a>
-                    {% else %}
-                        <a href="{% url 'product_detail' product.product_id %}">
-                            <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
-                        </a>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.price }}</p>
-                    </div>
-                </div>
+    <div class="col-md-3 mb-4">
+        <div class="card product-card">
+            {% if product.first_file %}
+                <a href="{% url 'product_detail' product.product_id %}">
+                    <!-- 경로 조작하여 이미지 표시 -->
+                    <img src="/media/product_checks/{{ product.first_file.file.url|slice:'21:' }}" class="img-fluid" alt="{{ product.name }}">
+                </a>
+            {% else %}
+                <a href="{% url 'product_detail' product.product_id %}">
+                    <img src="{% static 'default-image.jpg' %}" class="img-fluid" alt="Default Image">
+                </a>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.price }}</p>
             </div>
-        {% endfor %}
+        </div>
+    </div>
+            {% endfor %}
+
     </div>
 </div>
+
+
 
 <!-- Button to navigate to findimage.html -->
 <div class="text-center mt-4">
