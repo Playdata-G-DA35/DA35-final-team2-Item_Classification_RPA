@@ -5,8 +5,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg, Max, Min
-from .models import Product, ProductX, ProductFile, Chat, Category, UserProfile
-from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm, UserProfileForm
+from .models import Product, ProductFile, Chat, Category, UserProfile, FindImage, check2, FinalModel
+from .forms import RegisterForm, FindIDForm, FindPasswordForm, PasswordResetConfirmForm, ProductForm, ProductFileForm, UserProfileForm, FindImageForm
 from django.urls import path
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -224,10 +224,6 @@ def search_products(request):
         'min_price': min_price,
     })
 
-def img_search(request):
-    # 테스트
-    return render(request, 'img_search.html')
-
 def home(request):
     products = Product.objects.all()
     # 각 제품에 대해 첫 번째 파일을 추가합니다.
@@ -309,19 +305,32 @@ def profile_update(request):
 
     return render(request, 'USR.html', {'user': user, 'form': form})
 
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
 from datetime import timedelta
 import os
 import glob
-from django.utils import timezone
+import torch
+from torchvision import transforms
+import torchvision.models as models
+import torch.nn as nn
+from PIL import Image
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
-from .models import Product, ProductFile, check2
+from .models import Product, ProductFile, check2, FinalModel
 from .forms import ProductForm, ProductCheckForm
 from django.conf import settings
+from .category import ImageEmbeddingModel
+from django.http import JsonResponse
+from urllib.parse import unquote
+
+# 모델 정보 딕셔너리 정의
+model_info_dict = {
+    "onepiece": [r"059.pth", 3]
+    # 필요한 다른 카테고리와 모델 정보를 추가
+}
 
 @login_required
 def add_product(request):
@@ -329,14 +338,13 @@ def add_product(request):
         product_form = ProductForm(request.POST)
         product_check_form = ProductCheckForm(request.POST, request.FILES)
         
-        # 선택된 이미지 URL
         selected_image_url = request.POST.get('selected_image_url', None)
 
         if 'imcheck' in request.POST:
             if product_check_form.is_valid():
                 product_check = product_check_form.save()
                 messages.success(request, '이미지가 성공적으로 저장되었습니다.')
-                
+
                 my_datapath = os.path.join(settings.MEDIA_ROOT, 'product_checks')
                 files = glob.glob(os.path.join(my_datapath, '*'))
                 latest_file = max(files, key=os.path.getmtime)
@@ -352,8 +360,8 @@ def add_product(request):
                     
                     if not check2.objects.filter(image=result_image_name).exists():
                         check2.objects.create(image=result_image_name)
-                
-                return redirect('add_product')  # 페이지를 새로 고침하여 최근 이미지를 확인
+            
+            return redirect('add_product')
 
         elif 'selected_image_url' in request.POST:
             if product_form.is_valid() and selected_image_url:
@@ -361,28 +369,50 @@ def add_product(request):
                 product.user = request.user
                 product.save()
                 messages.success(request, '상품이 성공적으로 등록되었습니다.')
-                
-                try:
-                    # 선택된 이미지를 ProductFile로 저장
-                    check2_image = check2.objects.get(image=selected_image_url)
-                    product_file = ProductFile(
-                        product=product,
-                        file_name=os.path.basename(check2_image.image.name),
-                        check2_image=check2_image  # 관계 설정
-                    )
-                    
-                    # 이미지 파일을 저장하기 위한 ContentFile 객체를 생성
-                    with default_storage.open(check2_image.image.name, 'rb') as f:
-                        content = ContentFile(f.read(), os.path.basename(check2_image.image.name))
-                        product_file.file.save(os.path.basename(check2_image.image.name), content)
 
-                    product_file.save()
+                try:
+                    # 선택된 이미지의 경로를 처리합니다.
+                    if selected_image_url.startswith('/media/'):
+                        relative_path = selected_image_url[len('/media/'):]
+                    else:
+                        relative_path = selected_image_url
+
+                    # FinalModel에서 선택된 이미지를 가져옵니다.
+                    final_image = FinalModel.objects.get(image=relative_path)
+                    file_path = os.path.join(settings.MEDIA_ROOT, final_image.image.name)
                     
-                except check2.DoesNotExist:
+                    if not os.path.exists(file_path):
+                        raise FileNotFoundError('파일이 존재하지 않습니다.')
+
+                    # 카테고리 추출
+                    cate_big = "onepiece"  # 예시 카테고리, 실제로는 적절한 카테고리로 수정
+                    base_model = ImageEmbeddingModel(
+                        weight_path=model_info_dict[cate_big][0], 
+                        class_num=model_info_dict[cate_big][1], 
+                        img_path=file_path
+                    )
+                    category = base_model.get_category()
+                    max_value, max_index = torch.max(category, dim=1)
+                    category_label = max_index.item()
+                    print(category_label)
+                    with default_storage.open(final_image.image.name, 'rb') as f:
+                        content = ContentFile(f.read(), os.path.basename(final_image.image.name))
+                        product_file = ProductFile(
+                            product=product,
+                            file_name=os.path.basename(final_image.image.name),
+                            check2_image=None  # 관계 설정을 생략
+                        )
+                        product_file.file.save(os.path.basename(final_image.image.name), content)
+                        product_file.save()
+
+
+                    messages.success(request, f'이미지가 성공적으로 저장되었습니다. 카테고리: {category_label}')
+
+                except FinalModel.DoesNotExist:
                     messages.error(request, '선택한 이미지가 데이터베이스에 존재하지 않습니다.')
                     return redirect('add_product')
 
-                return redirect('home')  # 성공적으로 저장 후 리디렉션
+                return redirect('home')
 
     else:
         product_form = ProductForm()
@@ -397,3 +427,82 @@ def add_product(request):
         'product_check_form': product_check_form,
         'recent_images': recent_images,
     })
+
+def save_selected_image(request):
+    if request.method == 'POST':
+        image_url = request.POST.get('image_url')
+        if image_url:
+            try:
+                # URL 디코딩 (예: %20 -> 공백)
+                decoded_image_url = unquote(image_url)
+                
+                if decoded_image_url.startswith('/media/'):
+                    relative_path = decoded_image_url[len('/media/'):]
+                else:
+                    relative_path = decoded_image_url
+
+                final_image = FinalModel(image=relative_path)
+                final_image.save()
+
+                file_path = os.path.join(settings.MEDIA_ROOT, final_image.image.name)
+
+                if not os.path.exists(file_path):
+                    raise FileNotFoundError(f'파일이 존재하지 않습니다: {file_path}')
+
+                cate_big = "onepiece"
+                base_model = ImageEmbeddingModel(
+                    weight_path=model_info_dict[cate_big][0], 
+                    class_num=model_info_dict[cate_big][1], 
+                    img_path=file_path
+                )
+                category = base_model.get_category()
+                max_value, max_index = torch.max(category, dim=1)
+                category_label = max_index.item()
+
+                response_data = {'success': True, 'message': 'Image saved successfully', 'category': category_label}
+                
+                # 디버깅용 출력
+                print(f"Response Data: {response_data}")
+                
+                return JsonResponse(response_data)
+            except Exception as e:
+                return JsonResponse({'success': False, 'message': str(e)})
+        else:
+            return JsonResponse({'success': False, 'message': 'No image URL provided'})
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+from django.shortcuts import render
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+import os
+from .chromafind import find_similar_images
+from .models import FindImage
+from django.conf import settings
+
+def find_image(request):
+    if request.method == 'POST':
+        uploaded_file = request.FILES.get('image_file')
+        if uploaded_file:
+            # 이미지 파일 모델에 저장
+            find_image_instance = FindImage(image=uploaded_file)
+            find_image_instance.save()
+
+            # 저장된 파일 경로
+            file_path = os.path.join(settings.MEDIA_ROOT, find_image_instance.image.name)
+
+            try:
+                # 유사 이미지 검색
+                similar_images = find_similar_images(file_path, "onepiece", model_info_dict, top_k=4)
+                results = [{'id': img_id, 'score': score} for score, img_id in similar_images]
+                
+                # 성공 응답 반환
+                return JsonResponse({'success': True, 'results': results})
+            except Exception as e:
+                # 에러 발생 시 에러 메시지 반환
+                return JsonResponse({'success': False, 'message': str(e)})
+            finally:
+                # 이미지 파일 삭제 (선택 사항)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+    return render(request, 'find_image.html')

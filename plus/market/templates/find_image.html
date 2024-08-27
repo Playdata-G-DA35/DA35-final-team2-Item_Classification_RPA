@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <script src="https://kit.fontawesome.com/8ef7c270b7.js" crossorigin="anonymous"></script>
+    {% load static %}
+    <style>
+        @font-face {
+            font-family: 'Pretendard-Regular';
+            src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #3c3c3c;
+            font-family: 'Pretendard-Regular', sans-serif;
+            padding-top: 20x;
+        }
+
+        .btn-custom {
+            background-color: #00c5bf;
+            border: none;
+            color: #ffffff;
+            width: 200px;
+        }
+
+        .btn-custom:hover {
+            background-color: #007296;
+            color: #ffffff;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* 'custom-file-input' 클래스를 사용자 정의 이름으로 변경 */
+        .custom-input-file {
+            width: auto;
+        }
+
+        .file-input-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- "이미지 업로드" 텍스트 -->
+        <h2 class="text-center mb-4">이미지 업로드</h2>
+
+        <!-- 분리선 -->
+        <hr class="mb-4">
+
+        <!-- 파일 업로드 폼 -->
+        <form id="findImageForm" method="post" enctype="multipart/form-data" class="mb-5">
+            {% csrf_token %}
+            <div class="form-group text-center">
+                <!-- 파일 선택 입력란을 감싸는 컨테이너 -->
+                <div class="file-input-container">
+                    <!-- 파일 선택 입력란 -->
+                    <input type="file" name="image_file" class="custom-input-file mb-3" id="image_file" required>
+                </div>
+
+                <!-- 이미지 미리보기를 감싸는 컨테이너 -->
+                <div class="d-flex justify-content-center">
+                    <!-- 이미지 미리보기-->
+                    <img id="imagePreview" alt="이미지 미리보기">
+                </div>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="btn-container">
+                <!-- "유사 이미지 찾기" 버튼 -->
+                <button type="submit" class="btn btn-custom">검색하기</button>
+                <!-- "홈으로 가기" 버튼 -->
+                <button type="button" class="btn btn-custom" onclick="window.location.href='/'">홈으로 가기</button>
+            </div>
+        </form>
+
+        <hr class="mb-4">
+
+        <!-- 결과 표시 영역 -->
+        <div id="results" class="mt-4">
+            <!-- 검색 결과가 여기에 표시됩니다. -->
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('image_file').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imagePreview = document.getElementById('imagePreview');
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                document.getElementById('imagePreview').style.display = 'none';
+            }
+        });
+
+        document.getElementById('findImageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch("{% url 'find_image' %}", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsContainer = document.getElementById('results');
+                resultsContainer.innerHTML = '';
+
+                if (data.success) {
+                    data.results.forEach(result => {
+                        const imgElement = document.createElement('img');
+                        imgElement.src = `/media/find_images/${result.id}`;
+                        imgElement.alt = `Image ${result.id}`;
+                        imgElement.style.width = '150px';
+                        imgElement.style.height = '150px';
+                        imgElement.style.objectFit = 'cover';
+
+                        const scoreElement = document.createElement('p');
+                        scoreElement.textContent = `유사도: ${result.score}`;
+
+                        resultsContainer.appendChild(imgElement);
+                        resultsContainer.appendChild(scoreElement);
+                    });
+                } else {
+                    resultsContainer.textContent = `오류: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+
+</html>

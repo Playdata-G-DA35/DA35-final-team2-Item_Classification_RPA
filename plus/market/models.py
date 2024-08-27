@@ -37,16 +37,6 @@ class ProductFile(models.Model):
     def __str__(self):
         return self.file_name
 
-class ProductX(models.Model):
-    product_x_id = models.AutoField(primary_key=True)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reversed_files')
-    file_name = models.CharField(max_length=255)
-    file = models.FileField(upload_to='reversed_product_files/')
-    file_reg_date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.file_name
-
 class Chat(models.Model):
     chat_id = models.AutoField(primary_key=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='chats')
@@ -79,3 +69,17 @@ class check2(models.Model):
 
     def __str__(self):
         return f"Check2 Image {self.id}"
+    
+class FinalModel(models.Model):
+    image = models.ImageField(upload_to='final_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.image.name
+
+class FindImage(models.Model):
+    image = models.ImageField(upload_to='find_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"FindImage {self.id} - {self.created_at}"

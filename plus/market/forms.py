@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Product, ProductFile, UserProfile, ProductCheck
+from .models import Product, ProductFile, UserProfile, ProductCheck, FindImage, Category, FinalModel, check2
 
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="비밀번호")
@@ -119,6 +119,11 @@ class ProductForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 부모 카테고리를 제외한 자식 카테고리만 표시하도록 필터링
+        self.fields['category'].queryset = Category.objects.filter(parent__isnull=False)
+
 class ProductFileForm(forms.ModelForm):
     class Meta:
         model = ProductFile
@@ -132,4 +137,9 @@ class UserProfileForm(forms.ModelForm):
 class ProductCheckForm(forms.ModelForm):
     class Meta:
         model = ProductCheck
+        fields = ['image']
+    
+class FindImageForm(forms.ModelForm):
+    class Meta:
+        model = FindImage
         fields = ['image']
