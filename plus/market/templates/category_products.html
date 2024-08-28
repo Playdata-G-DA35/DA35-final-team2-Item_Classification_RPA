@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .product-item {
+        flex: 1 1 calc(25% - 20px);
+        max-width: calc(25% - 20px);
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+
+    .card-img-top {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        height: auto;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-text {
+        font-size: 1rem;
+        margin-bottom: 0;
+        font-weight: bold;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .text-right {
+        text-align: right;
+    }
+
+    .text-decoration-none {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .sort-buttons-container {
+        display: flex;
+        justify-content: flex-end; 
+        margin-bottom: 15px;
+        padding-right: 25px;
+    }
+
+    .sort-buttons a {
+        text-decoration: none;
+        color: #00c5bf;
+        padding: 0 1px;
+    }
+
+    .sort-buttons a:hover {
+        color: #007296; 
+    }
+
+    .sort-separator {
+        display: inline-block;
+        width: 1px;
+        height: 15px;
+        background-color: #00c5bf;
+        margin: 0 5px;
+        vertical-align: middle;
+    }
+
+    .price-comparison {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+
+    .price-comparison div {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        border-right: 1px solid #ddd;
+    }
+
+    .price-comparison div:last-child {
+        border-right: none;
+    }
+
+    .price-comparison h2 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .price-comparison p {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    h4 {
+        margin-top: 70px; 
+        margin-bottom: 30px; 
+        text-align: center;
+    }
+
+</style>
+
+<h4>'{{ category.name }}' 페이지의 가격을 비교해봤어요.</h4>
+<div class="price-comparison">
+    <div>
+        <h2>평균 가격</h2>
+        <p>{{ average_price|intcomma  }}원</p>
+    </div>
+    <div>
+        <h2>가장 높은 가격</h2>
+        <p>{{ max_price|intcomma }}원</p>
+    </div>
+    <div>
+        <h2>가장 낮은 가격</h2>
+        <p>{{ min_price|intcomma }}원</p>
+    </div>
+</div>
+
+<div class="sort-buttons-container">
+    <div class="sort-buttons">
+        <a href="{% url 'sorted_category_products' category.name 'price_asc' %}">낮은 가격순</a>
+        <span class="sort-separator"></span>
+        <a href="{% url 'sorted_category_products' category.name 'price_desc' %}">높은 가격순</a>
+    </div>
+</div>
+
+<div>
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="product-item card">
+                    <a href="{% url 'product_detail' product.product_id %}" class="text-decoration-none">
+                        {% if product.files.first %}
+                            <img src="{{ product.files.first.file.url }}" class="card-img-top" alt="{{ product.name }}">
+                        {% endif %}
+                        <div class="card-body text-right">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.price|floatformat:0|intcomma }}원</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>이 카테고리에는 상품이 없습니다.</p>
+    {% endif %}
+</div>
+{% endblock %}
