@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+비밀번호 재설정
+{% endblock %}
+
+{% block content %}
+<div class="find-id-container">
+    <h2 class="text-center mb-4">비밀번호 재설정</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="new_password">새 비밀번호</label>
+            <input type="password" class="form-control {% if form.new_password.errors %}is-invalid{% endif %}" id="new_password" name="new_password" placeholder="새 비밀번호를 입력해주세요.">
+            {% if form.new_password.errors %}
+                <div class="invalid-feedback">{{ form.new_password.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">새 비밀번호 확인</label>
+            <input type="password" class="form-control {% if form.confirm_password.errors %}is-invalid{% endif %}" id="confirm_password" name="confirm_password" placeholder="새 비밀번호를 다시 입력해주세요.">
+            {% if form.confirm_password.errors %}
+                <div class="invalid-feedback">{{ form.confirm_password.errors.0 }}</div>
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-custom btn-block">확인</button>
+    </form>      
+</div>
+{% endblock %}
