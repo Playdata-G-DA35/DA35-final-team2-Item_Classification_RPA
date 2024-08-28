@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
     <script src="https://kit.fontawesome.com/8ef7c270b7.js" crossorigin="anonymous"></script>
-    {% load static %}
+    <title>이미지 검색</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         @font-face {
             font-family: 'Pretendard-Regular';
@@ -22,7 +22,7 @@
             background-color: #ffffff;
             color: #3c3c3c;
             font-family: 'Pretendard-Regular', sans-serif;
-            padding-top: 20x;
+            padding-top: 20px;
         }
 
         .btn-custom {
@@ -30,135 +30,239 @@
             border: none;
             color: #ffffff;
             width: 200px;
+            margin: 0 5px; /* 좌우 간격 */
         }
 
         .btn-custom:hover {
-            background-color: #007296;
+            background-color: #005f73;
             color: #ffffff;
         }
 
-        .btn-container {
+        .centered-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .separator {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        .image-preview-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #selectedImagePreview img {
+            max-width: 150px;
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid transparent; /* 기본 테두리 투명 */
+            transition: border-color 0.3s ease;
+        }
+
+        #selectedImagePreview img.selected {
+            border-color: #007296; /* 선택된 이미지의 테두리 색상 */
+        }
+
+        .instruction-message {
+            text-align: center;
+            font-size: 16px;
+            color: #3c3c3c;
+            margin-bottom: 30px;
+            padding: 10px;
+            display: none; /* 기본적으로 숨김 */
+            opacity: 0; /* 초기 투명도 */
+        }
+
+        .instruction-message.show {
+            display: block; 
+            opacity: 1; 
+        }
+
+        .button-container {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            align-items: center;
+            margin-top: 10px; /* 버튼 간격 추가 */
+        }
+
+        /* 로딩 메시지 스타일 */
+        .loading-message {
+            display: none; /* 기본적으로 숨김 */
+            text-align: center;
             margin-top: 20px;
+            color: #007296;
         }
 
-        #imagePreview {
-            max-width: 100%;
-            max-height: 300px;
-            margin-top: 10px;
-            display: none;
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            vertical-align: text-bottom;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
         }
 
-        /* 'custom-file-input' 클래스를 사용자 정의 이름으로 변경 */
-        .custom-input-file {
-            width: auto;
+        @keyframes spinner-border {
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
-        .file-input-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px;
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: auto;
+        }
+
+        .product-card .card-body {
+            padding: 15px;
+        }
+
+        .product-card .card-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .product-card .card-text {
+            font-size: 1rem;
+            margin-bottom: 0;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <!-- "이미지 업로드" 텍스트 -->
-        <h2 class="text-center mb-4">이미지 업로드</h2>
+    <div class="container">
+        <h2 class="centered-title">이미지 검색</h2>
+        <div class="separator"></div> 
 
-        <!-- 분리선 -->
-        <hr class="mb-4">
+        <!-- 선택된 이미지 미리보기 -->
+        <div id="selectedImagePreview" class="image-preview-container"></div> 
 
-        <!-- 파일 업로드 폼 -->
-        <form id="findImageForm" method="post" enctype="multipart/form-data" class="mb-5">
+        <!-- 안내 메시지 -->
+        <div id="instructionMessage" class="instruction-message">
+            <i class="fas fa-info-circle"></i> 검색할 사진을 선택해주세요.
+        </div>
+
+        <!-- 파일 선택 버튼 -->
+        <form id="upload-form" enctype="multipart/form-data" class="text-center"> 
             {% csrf_token %}
-            <div class="form-group text-center">
-                <!-- 파일 선택 입력란을 감싸는 컨테이너 -->
-                <div class="file-input-container">
-                    <!-- 파일 선택 입력란 -->
-                    <input type="file" name="image_file" class="custom-input-file mb-3" id="image_file" required>
-                </div>
-
-                <!-- 이미지 미리보기를 감싸는 컨테이너 -->
-                <div class="d-flex justify-content-center">
-                    <!-- 이미지 미리보기-->
-                    <img id="imagePreview" alt="이미지 미리보기">
-                </div>
-            </div>
-
-            <!-- 버튼 -->
-            <div class="btn-container">
-                <!-- "유사 이미지 찾기" 버튼 -->
-                <button type="submit" class="btn btn-custom">검색하기</button>
-                <!-- "홈으로 가기" 버튼 -->
-                <button type="button" class="btn btn-custom" onclick="window.location.href='/'">홈으로 가기</button>
-            </div>
+            <input type="file" name="image_file" id="image_file" class="mb-3"> 
         </form>
 
-        <hr class="mb-4">
-
-        <!-- 결과 표시 영역 -->
-        <div id="results" class="mt-4">
-            <!-- 검색 결과가 여기에 표시됩니다. -->
+        <!-- 버튼 -->
+        <div class="button-container">
+            <button type="submit" form="upload-form" class="btn btn-custom">검색하기</button> <!-- 검색하기 버튼 -->
+            <a href="/" class="btn btn-custom">홈으로 가기</a> <!-- 홈으로 가기 버튼 -->
         </div>
+
+        <!-- 로딩 메시지 -->
+        <div id="loadingMessage" class="loading-message">
+            <div class="spinner-border" role="status"></div>
+            <span>검색 중...</span>
+        </div>
+
+        <!-- 유사 게시물들 -->
+        <div id="similar-images" class="text-center mt-4 row"></div> <!-- 유사 게시물들 카드 형식으로 표시 -->
     </div>
 
     <script>
-        document.getElementById('image_file').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
+        // 이미지 업로드 및 크롭된 이미지 표시
+        $('#upload-form').on('submit', function (e) {
+            e.preventDefault();
+            var formData = new FormData(this);
 
-            reader.onload = function(e) {
-                const imagePreview = document.getElementById('imagePreview');
-                imagePreview.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
+            // 검색 중 메시지 표시
+            $('#loadingMessage').show();
 
-            if (file) {
-                reader.readAsDataURL(file);
-            } else {
-                document.getElementById('imagePreview').style.display = 'none';
-            }
+            $.ajax({
+                url: "{% url 'find_image' %}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    $('#loadingMessage').hide(); // 검색 중 메시지 숨기기
+                    $('#selectedImagePreview').empty(); // 업로드된 이미지가 표시될 위치를 초기화
+                    $('#similar-images').empty(); // 유사 이미지도 초기화
+
+                    if (response.success) {
+                        $('#instructionMessage').addClass('show'); // "사진을 선택해주세요" 메시지 표시
+                        response.cropped_images.forEach(function (imageUrl) {
+                            $('#selectedImagePreview').append(
+                                '<img src="/media/' + imageUrl + '" class="cropped-image" style="width: 150px; margin: 10px;">'
+                            );
+                        });
+                    }
+                },
+                error: function () {
+                    $('#loadingMessage').hide(); // 검색 중 메시지 숨기기
+                    alert("오류가 발생했습니다. 다시 시도해주세요.");
+                }
+            });
         });
 
-        document.getElementById('findImageForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        // 클릭한 이미지와 유사한 이미지 검색
+        $(document).on('click', '.cropped-image', function () {
+            var imageUrl = $(this).attr('src').replace('/media/', '');
 
-            const formData = new FormData(this);
+            // 선택된 이미지에 대한 스타일 업데이트
+            $('.cropped-image').removeClass('selected'); // 모든 이미지에서 선택 스타일 제거
+            $(this).addClass('selected'); // 클릭된 이미지에 선택 스타일 추가
 
-            fetch("{% url 'find_image' %}", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                const resultsContainer = document.getElementById('results');
-                resultsContainer.innerHTML = '';
+            // 검색 중 메시지 표시
+            $('#loadingMessage').show();
 
-                if (data.success) {
-                    data.results.forEach(result => {
-                        const imgElement = document.createElement('img');
-                        imgElement.src = `/media/find_images/${result.id}`;
-                        imgElement.alt = `Image ${result.id}`;
-                        imgElement.style.width = '150px';
-                        imgElement.style.height = '150px';
-                        imgElement.style.objectFit = 'cover';
-
-                        const scoreElement = document.createElement('p');
-                        scoreElement.textContent = `유사도: ${result.score}`;
-
-                        resultsContainer.appendChild(imgElement);
-                        resultsContainer.appendChild(scoreElement);
-                    });
-                } else {
-                    resultsContainer.textContent = `오류: ${data.message}`;
+            $.ajax({
+                url: "{% url 'search_similar_images' %}",
+                type: "POST",
+                data: {
+                    'image_url': imageUrl,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    $('#loadingMessage').hide(); // 검색 중 메시지 숨기기
+                    $('#similar-images').empty();
+                    if (response.success) {
+                        response.results.forEach(function (result) {
+                            $('#similar-images').append(
+                                '<div class="col-md-3 mb-4">' +
+                                '<div class="card product-card">' +
+                                '<a href="' + result.product_detail_url + '">' +
+                                '<img src="' + result.product_image_url + '" class="img-fluid" alt="' + result.product_name + '">' +
+                                '</a>' +
+                                '<div class="card-body">' +
+                                '<h5 class="card-title">' + result.product_name + '</h5>' +
+                                '<p class="card-text">' + result.product_price + '원</p>' +
+                                '<p>' + result.product_description + '</p>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>'
+                            );
+                        });
+                    }
+                },
+                error: function () {
+                    $('#loadingMessage').hide(); // 검색 중 메시지 숨기기
+                    alert("오류가 발생했습니다. 다시 시도해주세요.");
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
             });
         });
     </script>

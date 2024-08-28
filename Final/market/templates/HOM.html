@@ -101,7 +101,7 @@
                     <div class="product-image-container">
                         {% if product.first_file %}
                             <a href="{% url 'product_detail' product.product_id %}">
-                                <img src="{{ product.first_file.file.url }}" class="img-fluid" alt="{{ product.name }}">
+                                <img src="/media/product_checks/{{ product.first_file.file.url|slice:'21:' }}" class="img-fluid" alt="{{ product.name }}">
                             </a>
                         {% else %}
                             <a href="{% url 'product_detail' product.product_id %}">
