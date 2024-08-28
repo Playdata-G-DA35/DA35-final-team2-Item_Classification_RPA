@@ -35,8 +35,8 @@ class ImageEmbeddingModel:
         img = Image.open(img_path).convert('RGB')
         preprocess = transforms.Compose([
             transforms.Resize((self.img_width, self.img_height)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.ToTensor()
+            
         ])
         img_tensor = preprocess(img)
         img_tensor = img_tensor.unsqueeze(0)

@@ -328,7 +328,9 @@ from urllib.parse import unquote
 
 # 모델 정보 딕셔너리 정의
 model_info_dict = {
-    "onepiece": [r"059.pth", 3]
+    "One piece": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\onepiece_006.pth", 2],
+    "Bottom": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\bottom_050.pth", 3],
+    "Top": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\top_034.pth", 5]
     # 필요한 다른 카테고리와 모델 정보를 추가
 }
 
@@ -385,16 +387,23 @@ def add_product(request):
                         raise FileNotFoundError('파일이 존재하지 않습니다.')
 
                     # 카테고리 추출
-                    cate_big = "onepiece"  # 예시 카테고리, 실제로는 적절한 카테고리로 수정
+                    # final_image.image.name에서 상위 폴더 이름을 추출하여 cate_big을 설정
+                    category_path_parts = os.path.normpath(final_image.image.name).split(os.sep)
+                    cate_big = category_path_parts[-2]  # 상위 폴더 이름 추출
+
+                    # cate_big을 사용하여 모델 정보 가져오기
                     base_model = ImageEmbeddingModel(
-                        weight_path=model_info_dict[cate_big][0], 
-                        class_num=model_info_dict[cate_big][1], 
-                        img_path=file_path
+                    weight_path=model_info_dict[cate_big][0], 
+                    class_num=model_info_dict[cate_big][1], 
+                    img_path=file_path
                     )
+
+                    # 카테고리 예측
                     category = base_model.get_category()
                     max_value, max_index = torch.max(category, dim=1)
                     category_label = max_index.item()
-                
+
+
                     with default_storage.open(final_image.image.name, 'rb') as f:
                         content = ContentFile(f.read(), os.path.basename(final_image.image.name))
                         product_file = ProductFile(
@@ -404,7 +413,6 @@ def add_product(request):
                         )
                         product_file.file.save(os.path.basename(final_image.image.name), content)
                         product_file.save()
-
 
                     messages.success(request, f'이미지가 성공적으로 저장되었습니다. 카테고리: {category_label}')
 
@@ -449,17 +457,44 @@ def save_selected_image(request):
                 if not os.path.exists(file_path):
                     raise FileNotFoundError(f'파일이 존재하지 않습니다: {file_path}')
 
-                cate_big = "onepiece"
+                # 카테고리 추출
+                # file_path에서 상위 폴더 이름을 추출하여 cate_big을 설정
+                category_path_parts = os.path.normpath(file_path).split(os.sep)
+                cate_big = category_path_parts[-2]  # 상위 폴더 이름 추출
+
+                # cate_big을 사용하여 모델 정보 가져오기
+                if cate_big not in model_info_dict:
+                    raise ValueError(f'알 수 없는 카테고리: {cate_big}')
+
                 base_model = ImageEmbeddingModel(
                     weight_path=model_info_dict[cate_big][0], 
                     class_num=model_info_dict[cate_big][1], 
                     img_path=file_path
                 )
+
+                # 카테고리 예측
                 category = base_model.get_category()
                 max_value, max_index = torch.max(category, dim=1)
                 category_label = max_index.item()
 
-                response_data = {'success': True, 'message': 'Image saved successfully', 'category': category_label}
+                # 카테고리 이름 매핑
+                category_names = [
+                    {0: "티셔츠", 1: "니트/스웨터", 2: "긴팔/후드/맨투맨", 3: "셔츠", 4: "나시"},
+                    {0: "긴바지", 1: "반바지", 2: "스커트"},
+                    {0: "점프슈트", 1: "원피스"}
+                ]
+
+                if cate_big == "Top":
+                    category_dict = category_names[0]
+                elif cate_big == "Bottom":
+                    category_dict = category_names[1]
+                elif cate_big == "One piece":
+                    category_dict = category_names[2]
+
+                # category_label에 해당하는 이름 찾기
+                category_name = category_dict.get(category_label, "Unknown Category")
+
+                response_data = {'success': True, 'message': 'Image saved successfully', 'category': category_name}
                 
                 # 디버깅용 출력
                 print(f"Response Data: {response_data}")
@@ -470,6 +505,9 @@ def save_selected_image(request):
         else:
             return JsonResponse({'success': False, 'message': 'No image URL provided'})
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+# views.py
 
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -505,49 +543,58 @@ def find_image(request):
                 
                 cropped_image_files = []
                 for img_file in glob.glob(os.path.join(output_dir, '**', '*.*'), recursive=True):
-                    # 이미지 파일의 수정 시간을 가져와 5초 이내인지 확인
                     file_mtime = datetime.fromtimestamp(os.path.getmtime(img_file))
                     if file_mtime > five_seconds_ago:
-                        # 'crops' 디렉토리 하위의 이미지 파일만 필터링
                         if '/crops/' in img_file.replace("\\", "/"):
                             cropped_image_files.append(img_file)
 
-                if not cropped_image_files:  # 크롭된 이미지가 없을 때 처리
+                if not cropped_image_files:
                     return JsonResponse({'success': True, 'cropped_images': []})
 
-                # 크롭된 이미지들을 클라이언트에게 전송
                 cropped_image_urls = [os.path.relpath(img, start=settings.MEDIA_ROOT) for img in cropped_image_files]
                 return JsonResponse({'success': True, 'cropped_images': cropped_image_urls})
 
             except Exception as e:
-                # 에러 발생 시 에러 메시지 반환
                 return JsonResponse({'success': False, 'message': str(e)})
             finally:
-                # 원본 이미지 파일 삭제 (선택 사항)
                 if os.path.exists(file_path):
                     os.remove(file_path)
 
-    return render(request, 'find_image.html')
+    return render(request, 'findimage.html')
 
+
+from django.shortcuts import render
 from django.http import JsonResponse
-from django.conf import settings
 from django.urls import reverse
-from django.utils.text import Truncator
-from django.contrib.humanize.templatetags.humanize import intcomma
 import os
+from django.conf import settings
+from .chromafind import find_similar_images
+from .models import ProductFile, Product
 
 def search_similar_images(request):
     if request.method == 'POST':
         clicked_image_url = request.POST.get('image_url')
-        if clicked_image_url:
+        category = request.POST.get('category')  # 카테고리 정보를 받아옵니다.
+
+        if clicked_image_url and category:
             file_path = os.path.join(settings.MEDIA_ROOT, clicked_image_url)
-            
+
+            # 카테고리별 모델 정보 딕셔너리
+            model_info_dict = {
+                "One piece": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\onepiece_006.pth", 2],
+                "Bottom": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\bottom_050.pth", 3],
+                "Top": [r"C:\Users\USER\Desktop\GoodMarket_test\가중치\top_034.pth", 5]
+            }
+
+            # 카테고리가 딕셔너리의 키와 일치하는지 확인
+            if category not in model_info_dict:
+                return JsonResponse({'success': False, 'message': 'Invalid category'})
+
             try:
-                # 유사 이미지 검색
-                model_info_dict = {
-                    "onepiece": [r"059.pth", 3]
-                }
-                similar_images = find_similar_images(file_path, "onepiece", model_info_dict, top_k=8)
+                # 선택된 카테고리에 맞는 모델 정보 가져오기
+                model_info = model_info_dict[category]
+                # `find_similar_images` 함수 호출
+                similar_images = find_similar_images(file_path, category.lower(), model_info, top_k=8)
 
                 results = []
                 for similarity, product_file_id in similar_images:
@@ -557,9 +604,9 @@ def search_similar_images(request):
                         results.append({
                             'id': product_file.file.name,
                             'score': similarity,
-                            'product_name': Truncator(product.name).chars(50, truncate='...'),  # 제목 생략 처리
-                            'product_price': intcomma(int(product.price)),  # 소수점 제거 후 천 단위 구분 쉼표 추가
-                            'product_description': Truncator(product.description).chars(20, truncate='...'),  # 설명 생략 처리
+                            'product_name': product.name,
+                            'product_price': product.price,
+                            'product_description': product.description,
                             'product_image_url': product_file.file.url,
                             'product_detail_url': request.build_absolute_uri(reverse('product_detail', args=[product.product_id]))
                         })

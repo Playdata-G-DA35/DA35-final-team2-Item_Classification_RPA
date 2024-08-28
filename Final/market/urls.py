@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import add_product, save_selected_image, find_image, search_similar_images
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('add/', views.add_product, name='add_product'),
     path('find_image/', views.find_image, name='find_image'),
+    path('find-image/', find_image, name='find_image'), 
     path('save_selected_image/', views.save_selected_image, name='save_selected_image'),
     path('search-similar-images/', views.search_similar_images, name='search_similar_images'),
     path('chat/<int:product_id>/', views.chat, name='chat'),  
