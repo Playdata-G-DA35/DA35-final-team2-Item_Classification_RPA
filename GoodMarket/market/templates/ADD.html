@@ -1,16 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Product</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상품 등록</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome CSS -->
+    <script src="https://kit.fontawesome.com/8ef7c270b7.js" crossorigin="anonymous"></script>
+    <style>
+        .form-container {
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .separator {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 20px 0;
+        }
+
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 200px; 
+            height: 200px; 
+            overflow: hidden; 
+            display: inline-block;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .image-preview.selected {
+            border-color: #00c5bf;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%; 
+            object-fit: cover; 
+            display: block;
+        }
+
+        .alert {
+            margin-top: 20px;
+        }
+
+        .selected-info {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <h2>Add Product</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ product_form.as_p }}
-        <label for="id_file">Upload Files:</label>
-        <input type="file" name="file" multiple>
-        <button type="submit">Add Product</button>
-    </form>
+    <!-- Include base navigation bar -->
+    {% include 'base.html' %}
+
+    <!-- Main content -->
+    <div class="form-container">
+        <h2 class="mb-4">상품 등록</h2>
+        <div class="separator"></div>
+        <form id="productForm" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <!-- 상품 확인 이미지 -->
+            <div class="form-group">
+                <label for="productCheckImage"></label>
+                {{ product_check_form.image }}
+            </div>
+
+            <!-- 상품 확인 이미지 저장 버튼 -->
+            <button type="submit" name="imcheck" class="btn btn-custom btn-block">확인</button>
+            <div class="separator"></div>
+
+            <!-- 판매 상품 선택 -->
+            <h3 id="productSelectionHeader" class="hidden">판매할 상품을 선택해주세요.</h3>
+            <div id="productSelectionContainer" class="image-preview-container hidden">
+                {% for image in recent_images %}
+                    <div class="image-preview" data-image-url="{{ image.image.url }}">
+                        <img src="{{ image.image.url }}" alt="Recent Image">
+                    </div>
+                {% empty %}
+                    <p>No recent images.</p>
+                {% endfor %}
+            </div>
+            
+            <div id="selectedImageInfo" class="selected-info hidden">
+                <p>선택된 이미지: <span id="selectedImagePath">없음</span></p>
+                <!-- 카테고리 정보 표시 -->
+                <p>카테고리: <span id="selectedCategory">없음</span></p>
+            </div>
+            
+            <!-- 선택 완료 버튼 -->
+            <div id="confirmButtonContainer" class="hidden">
+                <button id="confirmSelection" class="btn btn-custom">선택 완료</button>
+            </div>
+
+            <!-- 선택된 이미지 미리보기 -->
+            <div class="form-group hidden" id="selectedImagePreviewContainer">
+                <div class="separator"></div>
+                <label>선택된 이미지</label>
+                <div id="selectedImagePreview" class="image-preview-container">
+                    <!-- 선택된 이미지는 JavaScript에서 업데이트 -->
+                </div>
+                <div class="separator"></div>
+            </div>
+
+            <!-- 상품명 -->
+            <div class="form-group">
+                <label for="productName">상품명</label>
+                {{ product_form.name }}
+            </div>
+
+            <!-- 카테고리 -->
+            <div class="separator"></div>
+            <div class="form-group">
+                <label for="category">카테고리</label>
+                {{ product_form.category }}
+            </div>
+            <div class="separator"></div>
+
+            <!-- 가격 -->
+            <div class="form-group">
+                <label for="price">가격</label>
+                {{ product_form.price }}
+            </div>
+            <div class="separator"></div>
+
+            <!-- 설명 -->
+            <div class="form-group">
+                <label for="description">설명</label>
+                {{ product_form.description }}
+            </div>
+
+            <!-- 등록 버튼 -->
+            <input type="hidden" id="selectedImageUrl" name="selected_image_url">
+            <button type="submit" id="submitButton" class="btn btn-custom btn-block">등록하기</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const recentImages = document.querySelectorAll('.image-preview');
+            const selectedImagePathElement = document.getElementById('selectedImagePath');
+            const selectedCategoryElement = document.getElementById('selectedCategory');
+            const confirmButtonContainer = document.getElementById('confirmButtonContainer');
+            const confirmSelection = document.getElementById('confirmSelection');
+            const selectedImageUrlInput = document.getElementById('selectedImageUrl');
+            const selectedImagePreviewContainer = document.getElementById('selectedImagePreview');
+            const productSelectionHeader = document.getElementById('productSelectionHeader');
+            const productSelectionContainer = document.getElementById('productSelectionContainer');
+            const selectedImageInfo = document.getElementById('selectedImageInfo');
+            const selectedImagePreviewGroup = document.getElementById('selectedImagePreviewContainer');
+            let selectedImageUrl = null;
+
+            // 이미지가 로드되면 헤더와 이미지 선택 컨테이너를 표시
+            if (recentImages.length > 0) {
+                productSelectionHeader.classList.remove('hidden');
+                productSelectionContainer.classList.remove('hidden');
+            }
+
+            // Handle recent image selection
+            recentImages.forEach(function(imagePreview) {
+                imagePreview.addEventListener('click', function() {
+                    recentImages.forEach(function(img) {
+                        img.classList.remove('selected');
+                    });
+                    imagePreview.classList.add('selected');
+                    selectedImageUrl = imagePreview.getAttribute('data-image-url');
+                    selectedImagePathElement.textContent = selectedImageUrl || '없음';
+                    selectedImageUrlInput.value = selectedImageUrl;
+
+                    // Display selected image
+                    selectedImagePreviewContainer.innerHTML = ''; // Clear previous preview
+                    if (selectedImageUrl) {
+                        const image = document.createElement('img');
+                        image.src = selectedImageUrl;
+                        image.alt = 'Selected Image';
+                        image.style.width = '200px';
+                        image.style.height = '200px';
+                        image.style.objectFit = 'cover';
+                        selectedImagePreviewContainer.appendChild(image);
+                    }
+
+                    selectedImageInfo.classList.remove('hidden'); // 선택된 이미지 정보 표시
+                    confirmButtonContainer.classList.remove('hidden');
+                });
+            });
+
+            // Handle the confirm selection button
+            confirmSelection.addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent form from submitting immediately
+
+                if (selectedImageUrl) {
+                    fetch("{% url 'save_selected_image' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: new URLSearchParams({
+                            'image_url': selectedImageUrl
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Log the response to check if category is present
+                        if (data.success) {
+                            selectedCategoryElement.textContent = data.category || '없음';
+                            // Optionally update other fields or handle form submission here
+                            // Disable the confirm button or remove it as needed
+                            confirmButtonContainer.classList.add('hidden');
+                            selectedImagePreviewGroup.classList.remove('hidden'); // 선택된 이미지 미리보기 표시
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

@@ -1,10 +1,10 @@
-#forms.py
+# forms.py
 from typing import Any
 from django import forms
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Product, ProductFile
+from .models import Product, ProductFile, UserProfile, ProductCheck, FindImage, Category, FinalModel, check2
 
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="비밀번호")
@@ -96,10 +96,50 @@ class PasswordResetConfirmForm(forms.Form):
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model = Product
-        fields = ['category', 'name', 'price', 'description']
+        model = Product  
+        fields = ['name', 'category', 'price', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '상품명을 입력해주세요.',
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': '카테고리를 선택해주세요.',
+            }),
+            'price': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '숫자만 입력해주세요.',
+                'step': 'any'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': '상품 설명을 입력해주세요.',
+                'rows': 4,
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 부모 카테고리를 제외한 자식 카테고리만 표시하도록 필터링
+        self.fields['category'].queryset = Category.objects.filter(parent__isnull=False)
 
 class ProductFileForm(forms.ModelForm):
     class Meta:
         model = ProductFile
-        fields = ['file'] 
+        fields = ['file']
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['profile_image']
+
+class ProductCheckForm(forms.ModelForm):
+    class Meta:
+        model = ProductCheck
+        fields = ['image']
+    
+class FindImageForm(forms.ModelForm):
+    class Meta:
+        model = FindImage
+        fields = ['image']

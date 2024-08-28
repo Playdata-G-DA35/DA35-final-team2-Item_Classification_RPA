@@ -10,6 +10,7 @@
         <h2 class="text-center mb-4">로그인</h2>
         <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
             <div class="form-group">
                 <label for="username">아이디</label>
                 <input type="text" class="form-control {% if form.errors.username %}is-invalid{% endif %}" id="username" name="username" placeholder="아이디를 입력해주세요." required>
