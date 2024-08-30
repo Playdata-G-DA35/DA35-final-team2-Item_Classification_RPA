@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find Image</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form id="upload-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image_file" id="image_file">
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="cropped-images"></div>
+    <div id="similar-images"></div>
+
+    <script>
+        // 이미지 업로드 및 크롭된 이미지 표시
+        $('#upload-form').on('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: "{% url 'find_image' %}",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#cropped-images').empty();
+                    if (response.success) {
+                        response.cropped_images.forEach(function(imageUrl) {
+                            $('#cropped-images').append(
+                                '<img src="/media/' + imageUrl + '" class="cropped-image" style="width: 150px; margin: 10px;">'
+                            );
+                        });
+                    }
+                }
+            });
+        });
+
+        // 클릭한 이미지와 유사한 이미지 검색
+        $(document).on('click', '.cropped-image', function() {
+            var imageUrl = $(this).attr('src').replace('/media/', '');
+
+            $.ajax({
+                url: "{% url 'search_similar_images' %}",
+                type: "POST",
+                data: {
+                    'image_url': imageUrl,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    $('#similar-images').empty();
+                    if (response.success) {
+                        response.results.forEach(function(result) {
+                            $('#similar-images').append(
+                                '<div>' +
+                                    '<a href="' + result.product_detail_url + '">' +  // 링크 추가
+                                        '<img src="' + result.product_image_url + '" style="width: 150px;">' +
+                                    '</a>' +
+                                    '<p>' + result.product_name + '</p>' +
+                                    '<p>Price: ' + result.product_price + '</p>' +
+                                    '<p>' + result.product_description + '</p>' +
+                                '</div>'
+                            );
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
